@@ -17,6 +17,8 @@ from pathlib import Path
 # BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Obtener DEBUG desde variable de entorno
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -25,10 +27,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-10t(t(6oy^@)yigt49yk!t8(c*qrqjjo27=(4$wnfvqu(_dfp9")
 
 
-# Alterna entre producción y desarrollo
+#  ✅ Mantener ALLOWED_HOSTS en variable de entorno
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
+# ✅ Asegurar que el dominio de Railway esté incluido en producción
+if not os.getenv("DEBUG", "True") == "True":
+    ALLOWED_HOSTS.append("convcortproyec-production.up.railway.app")
 
+# ✅ CSRF_TRUSTED_ORIGINS para evitar error CSRF 403
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host != "localhost"]
+
+# ✅ Cookies seguras solo en producción
+CSRF_COOKIE_SECURE = not os.getenv("DEBUG", "True") == "True"
+SESSION_COOKIE_SECURE = not os.getenv("DEBUG", "True") == "True"
 
 # Application definition
 
@@ -76,9 +87,6 @@ WSGI_APPLICATION = 'conv_cort_proyec.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# Obtener DEBUG desde variable de entorno
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Base de Datos - Alternando entre Local y Railway
 if DEBUG:  
@@ -149,3 +157,5 @@ else:  # En desarrollo
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
