@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-10t(t(6oy^@)yigt49yk!t8(c*qrqjjo27=(4$wnfvqu(_dfp9'
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-10t(t(6oy^@)yigt49yk!t8(c*qrqjjo27=(4$wnfvqu(_dfp9")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -74,16 +75,22 @@ WSGI_APPLICATION = 'conv_cort_proyec.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'convocatorias_db',  # Nombre exacto de la BD
-        'USER': 'postgres',  # Usuario de PostgreSQL (por defecto es 'postgres')
-        'PASSWORD': 'Adm1nCortos',  # La contraseña que usaste en la instalación
-        'HOST': 'localhost',  # Mantén localhost
-        'PORT': '5432',  # Puerto estándar de PostgreSQL
+# **Base de Datos - Alternando entre Local y Railway**
+if DEBUG:  # Si estamos en desarrollo (DEBUG=True), usa la BD local
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'convocatorias_db',  # Nombre exacto de la BD
+            'USER': 'postgres',  # Usuario de PostgreSQL (por defecto es 'postgres')
+            'PASSWORD': 'Adm1nCortos',  # La contraseña de la BD local
+            'HOST': 'localhost',  # Mantén localhost
+            'PORT': '5432',  # Puerto estándar de PostgreSQL
+        }
     }
-}
+else:  # Si estamos en producción (DEBUG=False), usa la BD de Railway
+    DATABASES = {
+        'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    }
 
 
 
