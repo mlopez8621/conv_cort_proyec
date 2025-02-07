@@ -28,7 +28,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-10t(t(6oy^@)yigt49yk!t8(c*
 
 
 #  ✅ Mantener ALLOWED_HOSTS en variable de entorno
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,convcortproyec-production.up.railway.app").split(",")
+
 
 # ✅ Asegurar que el dominio de Railway esté incluido en producción
 if not os.getenv("DEBUG", "True") == "True":
