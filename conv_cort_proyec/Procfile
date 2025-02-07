@@ -1,1 +1,1 @@
-web: gunicorn conv_cort_proyec.wsgi --log-file -
+web: gunicorn conv_cort_proyec.wsgi:application --bind 0.0.0.0:$PORT
