@@ -75,21 +75,28 @@ WSGI_APPLICATION = 'conv_cort_proyec.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# **Base de Datos - Alternando entre Local y Railway**
-if DEBUG:  # Si estamos en desarrollo (DEBUG=True), usa la BD local
+# Obtener DEBUG desde variable de entorno
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+
+# Base de Datos - Alternando entre Local y Railway
+if DEBUG:  
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'convocatorias_db',  # Nombre exacto de la BD
-            'USER': 'postgres',  # Usuario de PostgreSQL (por defecto es 'postgres')
-            'PASSWORD': 'Adm1nCortos',  # La contraseña de la BD local
-            'HOST': 'localhost',  # Mantén localhost
-            'PORT': '5432',  # Puerto estándar de PostgreSQL
+            'NAME': 'convocatorias_db',  
+            'USER': 'postgres',  
+            'PASSWORD': 'Adm1nCortos',  
+            'HOST': 'localhost',  
+            'PORT': '5432',  
         }
     }
-else:  # Si estamos en producción (DEBUG=False), usa la BD de Railway
+else:  
     DATABASES = {
-        'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=True  # Importante para Railway
+        )
     }
 
 
