@@ -6,35 +6,397 @@
     <title>Formulario de Postulación</title>
     <!-- Agregar Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #FFEB99;
+        }
+        .form-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-step {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .form-step.active {
+            display: block;
+            opacity: 1;
+        }
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        .btn-nav {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
 </head>
-<body class="bg-light">
-
+<body>
     <div class="container mt-5">
-        <div class="card shadow p-4">
-            <h2 class="text-center mb-4">Formulario de Postulación</h2>
+        <div class="form-container">
+            <div class="text-center">
+                {% load static %}
+                <img src="{% static 'images/proimagenes_colombia.png' %}" alt="Proimágenes Colombia"
+                 class="img-fluid rounded mb-4" style="width: 400px; height: auto;">
+            </div>
+            <h2 class="text-center mb-4">Convocatoria Permanente de Cortos</h2>
+            
+            <!-- Barra de Progreso -->
+            <div class="progress-container">
+                <div class="progress">
+                    <div class="progress-bar bg-primary" id="progressBar" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
             
             <form method="POST" enctype="multipart/form-data" class="needs-validation">
                 {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label class="form-label">Título:</label>
-                    {{ form.titulo }}
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Descripción:</label>
-                    {{ form.descripcion }}
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Archivo video:</label>
-                    {{ form.archivo_video }}
-                </div>
+                <!-- Sección 1 -->
+                <div class="form-step active" id="step1">
+                    <p class="text-center">PARA EXHIBICIÓN EN SALAS COMERCIALES. LA POSTULACIÓN
+                        AL BANCO DE CORTOS LA DEBE HACER DIRECTAMENTE EL PRODUCTOR DE LA OBRA EN
+                         CUESTIÓN. LOS DATOS DE CONTACTO DEBEN SER LOS DEL PRODUCTOR.</p>
+                    <div class="mb-3">
+                        <label class="form-label">Correo:</label>
+                        <input type="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Título:</label>
+                        {{ form.titulo }}
+                    </div>
 
-                <button type="submit" class="btn btn-primary w-100">Enviar Postulación</button>
+                    <div class="mb-3">
+                        <label class="form-label">Año de producción:</label>
+                        <input type="number" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Duración (Min):</label>
+                        <input type="number" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Técnica y Género:</label>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Drama</th>
+                                    <th>Comedia</th>
+                                    <th>Ciencia Ficción</th>
+                                    <th>Ensayo</th>
+                                    <th>Suspenso</th>
+                                    <th>Terror</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Ficción</td>
+                                    <td><input type="checkbox" name="ficcion_drama"></td>
+                                    <td><input type="checkbox" name="ficcion_comedia"></td>
+                                    <td><input type="checkbox" name="ficcion_cienciaficcion"></td>
+                                    <td><input type="checkbox" name="ficcion_ensayo"></td>
+                                    <td><input type="checkbox" name="ficcion_suspenso"></td>
+                                    <td><input type="checkbox" name="ficcion_terror"></td>
+                                </tr>
+                                <tr>
+                                    <td>Documental</td>
+                                    <td><input type="checkbox" name="documental_drama"></td>
+                                    <td><input type="checkbox" name="documental_comedia"></td>
+                                    <td><input type="checkbox" name="documental_cienciaficcion"></td>
+                                    <td><input type="checkbox" name="documental_ensayo"></td>
+                                    <td><input type="checkbox" name="documental_suspenso"></td>
+                                    <td><input type="checkbox" name="documental_terror"></td>
+                                </tr>
+                                <tr>
+                                    <td>Animación</td>
+                                    <td><input type="checkbox" name="animacion_drama"></td>
+                                    <td><input type="checkbox" name="animacion_comedia"></td>
+                                    <td><input type="checkbox" name="animacion_cienciaficcion"></td>
+                                    <td><input type="checkbox" name="animacion_ensayo"></td>
+                                    <td><input type="checkbox" name="animacion_suspenso"></td>
+                                    <td><input type="checkbox" name="animacion_terror"></td>
+                                </tr>
+                                <tr>
+                                    <td>Experimental</td>
+                                    <td><input type="checkbox" name="experimental_drama"></td>
+                                    <td><input type="checkbox" name="experimental_comedia"></td>
+                                    <td><input type="checkbox" name="experimental_cienciaficcion"></td>
+                                    <td><input type="checkbox" name="experimental_ensayo"></td>
+                                    <td><input type="checkbox" name="experimental_suspenso"></td>
+                                    <td><input type="checkbox" name="experimental_terror"></td>
+                                </tr>
+                                <tr>
+                                    <td>Otro</td>
+                                    <td colspan="6"><input type="text" class="form-control" name="otro_genero" placeholder="Especificar otro género"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Formato de grabación:</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Productor o empresa productora:</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del director:</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Storyline / Sinopsis Corta:</label>
+                        <textarea class="form-control" rows="3" maxlength="390" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Locaciones de rodaje:</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">¿El corto ha sido beneficiario de la convocatoria del FDC para cortos?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="fdc" value="si" required>
+                            <label class="form-check-label">Sí</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="fdc" value="no" required>
+                            <label class="form-check-label">No</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Si su respuesta fue afirmativa, diligencie el año.</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Adjunte certificación o correo de que es beneficiario del FDC:</label>
+                        <input type="file" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">¿Su corto ha sido exhibido anteriormente en salas (comerciales) de cine? (Festivales no aplica) *</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="si" required>
+                            <label class="form-check-label">Sí</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="no" required>
+                            <label class="form-check-label">No</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"> ¿Su corto se ha publicado en plataformas online, TV u otras ventanas de exhibición diferentes a la gran pantalla?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="si" required>
+                            <label class="form-check-label">Sí</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="no" required>
+                            <label class="form-check-label">No</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="no" required>
+                            <label class="form-check-label">Otro:</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">En caso afirmativo, por favor escriba en cuáles y en que año.</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Número de resolución de reconocimiento de producto nacional o  Certificado de Producto Nacional (CPN)</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de resolución de reconocimiento de producto nacional  o  del Certificado de Producto Nacional (CPN)</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Resolución de reconocimiento de producto nacional  o  del Certificado de Producto Nacional (CPN)
+                            *
+                            Certificado emitido por la Dirección de Audiovisuales, Cine y Medios Interactivos (Antes Dirección de Cinematografía)</label>
+                        <input type="file" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Adjunte el acta de clasificación en caso de tenerla</label>
+                        <input type="file" class="form-control">
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Siguiente</button>
+                </div>
+                <!-- Sección 2 -->
+                <div class="form-step" id="step2">
+                    <h3>Autorización de uso de cortometraje</h3>
+                    <p>Descargue el siguiente archivo, si es persona jurídica o persona natural. Diligencielo, fírmelo y adjúntelo en el campo "Cargar autorización diligenciada y firmada".</p>
+                    <ul>
+                        <li><a href="{% static 'documents/AutorizacionUnilateral_UsoCorto_PN2025.pdf' %}" target="_blank">Autorización persona natural</a></li>
+                        <li><a href="{% static 'documents/AutorizacionUnilateral_UsoCorto_PJ2025.pdf' %}" target="_blank">Autorización persona juridica</a></li>
+                    </ul>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Elija si es persona natural o jurídica</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="autorizacion" value="si" required>
+                            <label class="form-check-label">Persona natural</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="autorizacion" value="no" required>
+                            <label class="form-check-label">Persona jurídica</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Cargar autorización diligenciada y firmada</label>
+                        <input type="file" class="form-control" required>
+                    </div>
+                    
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Siguiente</button>
+                </div>
+                <!-- Sección 3 -->
+                <div class="form-step" id="step3">
+                    <h3>Enlace del corto para visualización y revisión de requisitos</h3>
+                    <p>Solo material en Vimeo es aceptado y la duración del enlace debe coincidir con la que sale en la Resolución de producto. El enlace proporcionado debe ser de la versión que será vendida en salas, en caso de ser aprobado. </p>
+
+                    <div class="mb-3">
+                        <label class="form-label">Enlace del corto en Vimeo*</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña del corto en Vimeo*</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Principales Festivales (máximo 4)
+                            Ennumere los festivales en los que el cortometraje ha participado de la siguiente manera: Año-Nombre-Festival-Sección</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Siguiente</button>
+                </div>
+                <!-- Sección 4 -->
+                <div class="form-step" id="step4">
+                    <h3>Datos de contacto</h3>
+                    <p>ESTOS SON LOS DATOS DEL PRODUCTOR DE LA OBRA. Únicamente se enviarán comunicaciones al productor que aparece en la resolución de producto que debe ser el mismo que firma la autorización de uso. </p>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre completo del productor
+                            *
+                            Debe ser la persona (s) que aparece (n) en la Resolución nacional de producto.</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Número de celular del productor postulante*</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Domicilio del productor (Dirección y Ciudad)</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Correo del productor postulante (únicamente se enviarán comunicaciones al productor que firmó la autorización de uso y quien está registrado en la resolución de producto)</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">¿El cortometraje había sido postulado anteriormente a ésta convocatoria?*</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="si" required>
+                            <label class="form-check-label">Sí</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="no" required>
+                            <label class="form-check-label">No</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Adjunte la certificación firmada por el productor en la que garantice que el cortometraje postulado cumple con los requisitos  mínimos de imagen y sonido para la exhibición en las salas de cine de Colombia.   
+                            (Es importante que no se suscriba con firmas digitalizadas (escaneadas), sino con mecanismos de firma electrónica o digital como DocuSign, Signio, o similares. Si no tiene acceso a alguna plataforma de estas, puede imprimirlo, firmarlo y adjuntarlo en copia digital).</label>
+                        <input type="file" class="form-control">
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Siguiente</button>
+                </div>
+                <!-- Sección 5 -->
+                <div class="form-step" id="step5">
+                    <h3>Términos y condiciones</h3>
+                    <p>Al marcar esta casilla usted (1) declara que conoce y entiende plenamente la Política de Protección de Datos Personales del Fondo Mixto de Promoción Cinematográfica "Proimágenes Colombia" (entidad domiciliada en la calle 35 # 5 - 89 de Bogotá y con correo proimagenes@proimagenescolombia.com), la cual puede ser consultada en el sitio web www.proimágenescolombia.com, (2) acepta que Proimágenes Colombia lleve a cabo el tratamiento de sus datos de conformidad con las finalidades, derechos, mecanismos y demás parámetros definidos en la política previamente mencionada y, (3) acepta que,según lo establecido en el numeral 4.17 de la misma política, Proimágenes Colombia también lleve a cabo tratamiento para ponerse en contacto con usted cuando exhibidores cinematográficos registrados estén interesados en la adquisición o negociación de cortometrajes postulados en virtud de lo dispuesto por el artículo 2.10.2.5.1 del Decreto 554 de 2017.</p>
+                    <div class="mb-3">
+                        <label class="form-label">¿Acepta?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="si" required>
+                            <label class="form-check-label">Sí</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exhibicion" value="no" required>
+                            <label class="form-check-label">No</label>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button type="submit" class="btn btn-primary">Enviar Postulación</button>
+                </div>        
             </form>
         </div>
     </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function showStep(step) {
+            document.querySelectorAll(".form-step").forEach((el) => el.classList.remove("active"));
+            document.getElementById("step" + step).classList.add("active");
+            updateProgressBar(step);
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        function updateProgressBar(step) {
+            const progress = (step / totalSteps) * 100;
+            document.getElementById("progressBar").style.width = progress + "%";
+            document.getElementById("progressBar").setAttribute("aria-valuenow", progress);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => showStep(currentStep));
+    </script>
 
     <!-- Bootstrap JS (Opcional, solo si necesitas funcionalidades dinámicas) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

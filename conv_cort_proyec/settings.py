@@ -94,7 +94,7 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'convocatorias_db',  
+            'NAME': 'convocatorias_db',  # Esta línea solo para local
             'USER': 'postgres',  
             'PASSWORD': 'Adm1nCortos',  
             'HOST': 'localhost',  
@@ -104,13 +104,11 @@ if DEBUG:
 else:  
     DATABASES = {
         'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
+            default=os.getenv('DATABASE_URL').replace("convocatorias_db", "railway"),
             conn_max_age=600,
-            ssl_require=True  # Importante para Railway
+            ssl_require=True  
         )
     }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
