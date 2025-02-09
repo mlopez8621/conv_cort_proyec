@@ -9,10 +9,42 @@ class Postulacion(models.Model):
         ('aceptado', 'Aceptado'),
     ]
 
+    BENEFICIARIO_CHOICES = [
+        ('si', 'Sí'),
+        ('no', 'No'),
+    ]
+
+    EXHIBICION_CHOICES = [
+        ('si', 'Sí'),
+        ('no', 'No'),
+    ]
+
+    PLATAFORMAS_CHOICES = [
+        ('si', 'Sí'),
+        ('no', 'No'),
+        ('otro', 'Otro'),
+    ]
+
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)  # Relación con el usuario que postula
+    correo = models.TextField()
     titulo = models.CharField(max_length=255)
-    descripcion = models.TextField()
-    archivo_video = models.FileField(upload_to='cortos/')  # Subida de archivos de video
+    anio_produccion = models.CharField(max_length=255)
+    duracion = models.TextField()
+    formato_grabacion = models.TextField()
+    productor_emp_produc = models.TextField()
+    nom_director = models.TextField()
+    sinopsis_corta = models.TextField()
+    locaciones_rodaje = models.TextField()
+    beneficiario_fdc = models.CharField(max_length=2, choices=BENEFICIARIO_CHOICES, default='no')
+    anio_fdc = models.PositiveIntegerField(null=True, blank=True)
+    certificacion_fdc = models.FileField(upload_to='certificaciones/', null=True, blank=True)
+    exhibicion_salas = models.CharField(max_length=2,choices=EXHIBICION_CHOICES,default='no')
+    plataformas_exhibicion = models.CharField(max_length=10, choices=PLATAFORMAS_CHOICES,default='no')
+    si_plataforma = models.CharField(max_length=255, blank=True, null=True)
+    resolucion_cpn = models.TextField() 
+    fecha_resolucion_cpn = models.TextField() 
+    certificacion_cpn = models.FileField(upload_to='certificaciones/', null=True, blank=True)
+    acta_clasificacion = models.FileField(upload_to='certificaciones/', null=True, blank=True)
     fecha_postulacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
 
