@@ -1,0 +1,31 @@
+body {
+    background-color: #FFEB99;
+}
+.form-container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.form-step {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+.form-step.active {
+    display: block;
+    opacity: 1;
+}
+.progress-container {
+    margin-bottom: 20px;
+}
+.btn-nav {
+    display: flex;
+    justify-content: space-between;
+}
+.is-invalid {
+    border: 2px solid red;
+    background-color: #ffe6e6;
+}
