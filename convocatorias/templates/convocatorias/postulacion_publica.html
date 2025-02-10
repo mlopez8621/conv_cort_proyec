@@ -34,6 +34,10 @@
             display: flex;
             justify-content: space-between;
         }
+        .is-invalid {
+            border: 2px solid red;
+            background-color: #ffe6e6;
+        }
     </style>
 </head>
 <body>
@@ -61,29 +65,29 @@
                         AL BANCO DE CORTOS LA DEBE HACER DIRECTAMENTE EL PRODUCTOR DE LA OBRA EN
                          CUESTIÓN. LOS DATOS DE CONTACTO DEBEN SER LOS DEL PRODUCTOR.</p>
                     <div class="mb-3">
-                        <label class="form-label">Correo:</label>
+                        <label class="form-label"><strong>Correo:</strong><span class="text-danger">*</span></label>
                         {{ form.correo }}
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Título:</label>
+                        <label class="form-label"><strong>Título:</strong><span class="text-danger">*</span></label>
                         {{ form.titulo }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Año de producción:</label>
+                        <label class="form-label"><strong>Año de producción:</strong><span class="text-danger">*</span></label>
                         <p>El año que aparece en la Resolución de Producto Nacional o en el Certificado de Producto Nacional (CPN)</p>
                         {{ form.anio_produccion }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Duración (Min):</label>
+                        <label class="form-label"><strong>Duración (Min):</strong><span class="text-danger">*</span></label>
                         <p>Duración registrada en la Resolución de Producto Nacional  o en el Certificado de Producto Nacional (CPN)</p>
                         {{ form.duracion }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Técnica y Género:</label>
+                        <label class="form-label"><strong>Técnica y Género:</strong></label>
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <thead>
@@ -144,33 +148,33 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Formato de grabación:</label>
+                        <label class="form-label"><strong>Formato de grabación:</strong><span class="text-danger">*</span></label>
                         {{ form.formato_grabacion }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Productor o empresa productora:</label>
+                        <label class="form-label"><strong>Productor o empresa productora:</strong><span class="text-danger">*</span></label>
                         {{ form.productor_emp_produc }}
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Nombre del director:</label>
+                        <label class="form-label"><strong>Nombre del director:</strong><span class="text-danger">*</span></label>
                         {{ form.nom_director }}
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Storyline / Sinopsis Corta:</label>
+                        <label class="form-label"><strong>Storyline / Sinopsis Corta:</strong><span class="text-danger">*</span></label>
                         <P>Máximo 390 caractéres y/o 50 palabras.</P>
                         {{ form.sinopsis_corta }}
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Locaciones de rodaje:</label>
+                        <label class="form-label"><strong>Locaciones de rodaje:</strong><span class="text-danger">*</span></label>
                         {{ form.locaciones_rodaje }}
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">El corto ha sido beneficiario de la convocatoria del FDC para cortos</label>
+                        <label class="form-label"><strong>El corto ha sido beneficiario de la convocatoria del FDC para cortos</strong><span class="text-danger">*</span></label>
                         <div>
                             {% for radio in form.beneficiario_fdc %}
                                 <div class="form-check">
@@ -182,17 +186,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Si su respuesta fue afirmativa, diligencie el año.</label>
+                        <label class="form-label"><strong>Si su respuesta fue afirmativa, diligencie el año.</strong></label>
                         {{ form.anio_fdc }}
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Adjunte certificación o correo de que es beneficiario del FDC:</label>
+                        <label class="form-label"><strong>Adjunte certificación o correo de que es beneficiario del FDC:</strong></label>
                         {{ form.certificacion_fdc }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label"><strong>¿Su corto ha sido exhibido anteriormente en salas (comerciales) de cine?</strong> (Festivales no aplica) <span class="text-danger">*</span></label>
+                        <label class="form-label"><strong>¿Su corto ha sido exhibido anteriormente en salas (comerciales) de cine?</strong><span class="text-danger">*</span>
+                            <p>(Festivales no aplica)</p></label>
                         <div>
                             {% for radio in form.exhibicion_salas %}
                                 <div class="form-check">
@@ -204,7 +209,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label"> ¿Su corto se ha publicado en plataformas online, TV u otras ventanas de exhibición diferentes a la gran pantalla?</label>
+                        <label class="form-label"><strong>¿Su corto se ha publicado en plataformas online, TV u otras ventanas de exhibición diferentes a la gran pantalla?</strong></label>
                         <div>
                             {% for radio in form.plataformas_exhibicion %}
                                 <div class="form-check">
@@ -216,29 +221,28 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">En caso afirmativo, por favor escriba en cuáles y en que año.</label>
+                        <label class="form-label"><strong>En caso afirmativo, por favor escriba en cuáles y en que año.</strong></label>
                         {{ form.si_plataforma }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Número de resolución de reconocimiento de producto nacional o  Certificado de Producto Nacional (CPN)</label>
+                        <label class="form-label"><strong>Número de resolución de reconocimiento de producto nacional o  Certificado de Producto Nacional (CPN)</strong></label>
                         {{ form.resolucion_cpn }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Fecha de resolución de reconocimiento de producto nacional  o  del Certificado de Producto Nacional (CPN)</label>
+                        <label class="form-label"><strong>Fecha de resolución de reconocimiento de producto nacional  o  del Certificado de Producto Nacional (CPN)</strong></label>
                         {{ form.fecha_resolucion_cpn }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Resolución de reconocimiento de producto nacional  o  del Certificado de Producto Nacional (CPN)
-                            *
+                        <label class="form-label"><strong>Resolución de reconocimiento de producto nacional  o  del Certificado de Producto Nacional (CPN)</strong>
                             Certificado emitido por la Dirección de Audiovisuales, Cine y Medios Interactivos (Antes Dirección de Cinematografía)</label>
                             {{ form.certificacion_cpn }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Adjunte el acta de clasificación en caso de tenerla</label>
+                        <label class="form-label"><strong>Adjunte el acta de clasificación en caso de tenerla</strong></label>
                         {{ form.acta_clasificacion }}
                     </div>
                     <button type="button" class="btn btn-primary" onclick="nextStep()">Siguiente</button>
@@ -253,20 +257,20 @@
                     </ul>
                     
                     <div class="mb-3">
-                        <label class="form-label">Elija si es persona natural o jurídica</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="autorizacion" value="si" required>
-                            <label class="form-check-label">Persona natural</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="autorizacion" value="no" required>
-                            <label class="form-check-label">Persona jurídica</label>
+                        <label class="form-label"><strong>Elija si es persona natural o jurídica</strong></label>
+                        <div>
+                            {% for radio in form.tipo_persona %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label">{{ radio.choice_label }}</label>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Cargar autorización diligenciada y firmada</label>
-                        <input type="file" class="form-control" required>
+                        <label class="form-label"><strong>Cargar autorización diligenciada y firmada</strong></label>
+                        {{ form.autorizacion_uso }}
                     </div>
                     
                     <button type="button" class="btn btn-secondary" onclick="prevStep()">Atrás</button>
@@ -275,22 +279,26 @@
                 <!-- Sección 3 -->
                 <div class="form-step" id="step3">
                     <h3>Enlace del corto para visualización y revisión de requisitos</h3>
-                    <p>Solo material en Vimeo es aceptado y la duración del enlace debe coincidir con la que sale en la Resolución de producto. El enlace proporcionado debe ser de la versión que será vendida en salas, en caso de ser aprobado. </p>
+                    <p style="text-align: justify;">Solo material en Vimeo es aceptado y la duración del enlace debe coincidir con la que sale en la Resolución de producto. El enlace proporcionado debe ser de la versión que será vendida en salas, en caso de ser aprobado.</p>
 
                     <div class="mb-3">
-                        <label class="form-label">Enlace del corto en Vimeo*</label>
-                        <input type="text" class="form-control" required>
+                        <label class="form-label"><strong>Enlace del corto en Vimeo</strong><span class="text-danger">*</span></label>
+                        {{ form.enlace_vimeo }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Contraseña del corto en Vimeo*</label>
-                        <input type="text" class="form-control" required>
+                        <label class="form-label"><strong>Contraseña del corto en Vimeo</strong><span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            {{ form.contrasena_vimeo }}
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                👁️
+                            </button>
+                        </div>
                     </div>
-
                     <div class="mb-3">
-                        <label class="form-label">Principales Festivales (máximo 4)
-                            Ennumere los festivales en los que el cortometraje ha participado de la siguiente manera: Año-Nombre-Festival-Sección</label>
-                        <input type="text" class="form-control" required>
+                        <label class="form-label"><strong>Principales Festivales (máximo 4)</strong></label>
+                            <p>Ennumere los festivales en los que el cortometraje ha participado de la siguiente manera: Año-Nombre-Festival-Sección</p>
+                            {{ form.principales_festivales }}
                     </div>
 
 
@@ -300,46 +308,46 @@
                 <!-- Sección 4 -->
                 <div class="form-step" id="step4">
                     <h3>Datos de contacto</h3>
-                    <p>ESTOS SON LOS DATOS DEL PRODUCTOR DE LA OBRA. Únicamente se enviarán comunicaciones al productor que aparece en la resolución de producto que debe ser el mismo que firma la autorización de uso. </p>
+                    <p style="text-align: justify;">ESTOS SON LOS DATOS DEL PRODUCTOR DE LA OBRA. Únicamente se enviarán comunicaciones al productor que aparece en la resolución de producto que debe ser el mismo que firma la autorización de uso. </p>
 
                     <div class="mb-3">
-                        <label class="form-label">Nombre completo del productor
-                            *
-                            Debe ser la persona (s) que aparece (n) en la Resolución nacional de producto.</label>
-                        <input type="text" class="form-control" required>
+                        <label class="form-label"><strong>Nombre completo del productor</strong><span class="text-danger">*</span></label>
+                            <p>Debe ser la persona (s) que aparece (n) en la Resolución nacional de producto.</p>
+                            {{ form.nombre_productor }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Número de celular del productor postulante*</label>
-                        <input type="text" class="form-control" required>
+                        <label class="form-label"><strong>Número de celular del productor postulante</strong><span class="text-danger">*</span></label>
+                        {{ form.celular_productor }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Domicilio del productor (Dirección y Ciudad)</label>
-                        <input type="text" class="form-control" required>
+                        <label class="form-label"><strong>Domicilio del productor (Dirección y Ciudad)</strong></label>
+                        {{ form.domicilio_productor }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Correo del productor postulante (únicamente se enviarán comunicaciones al productor que firmó la autorización de uso y quien está registrado en la resolución de producto)</label>
-                        <input type="text" class="form-control" required>
+                        <label class="form-label"><strong>Correo del productor postulante</strong></label> 
+                            <p>(únicamente se enviarán comunicaciones al productor que firmó la autorización de uso y quien está registrado en la resolución de producto)</p>
+                            {{ form.correo_productor }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">¿El cortometraje había sido postulado anteriormente a ésta convocatoria?*</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="exhibicion" value="si" required>
-                            <label class="form-check-label">Sí</label>
+                        <label class="form-label"><strong>¿El cortometraje había sido postulado anteriormente a ésta convocatoria?</strong><span class="text-danger">*</span></label>
+                        <div>
+                            {% for radio in form.postulado_antes %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label">{{ radio.choice_label }}</label>
+                                </div>
+                            {% endfor %}
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="exhibicion" value="no" required>
-                            <label class="form-check-label">No</label>
-                        </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Adjunte la certificación firmada por el productor en la que garantice que el cortometraje postulado cumple con los requisitos  mínimos de imagen y sonido para la exhibición en las salas de cine de Colombia.   
-                            (Es importante que no se suscriba con firmas digitalizadas (escaneadas), sino con mecanismos de firma electrónica o digital como DocuSign, Signio, o similares. Si no tiene acceso a alguna plataforma de estas, puede imprimirlo, firmarlo y adjuntarlo en copia digital).</label>
-                        <input type="file" class="form-control">
+                        <label class="form-label"><p style="text-align: justify;"><strong>Adjunte la certificación firmada por el productor en la que garantice que el cortometraje postulado cumple con los requisitos  mínimos de imagen y sonido para la exhibición en las salas de cine de Colombia.</strong></p></label>   
+                            <p style="text-align: justify;">(Es importante que no se suscriba con firmas digitalizadas (escaneadas), sino con mecanismos de firma electrónica o digital como DocuSign, Signio, o similares. Si no tiene acceso a alguna plataforma de estas, puede imprimirlo, firmarlo y adjuntarlo en copia digital).</p>
+                            {{ form.certificacion_cumplimiento }}
                     </div>
 
                     <button type="button" class="btn btn-secondary" onclick="prevStep()">Atrás</button>
@@ -348,17 +356,14 @@
                 <!-- Sección 5 -->
                 <div class="form-step" id="step5">
                     <h3>Términos y condiciones</h3>
-                    <p>Al marcar esta casilla usted (1) declara que conoce y entiende plenamente la Política de Protección de Datos Personales del Fondo Mixto de Promoción Cinematográfica "Proimágenes Colombia" (entidad domiciliada en la calle 35 # 5 - 89 de Bogotá y con correo proimagenes@proimagenescolombia.com), la cual puede ser consultada en el sitio web www.proimágenescolombia.com, (2) acepta que Proimágenes Colombia lleve a cabo el tratamiento de sus datos de conformidad con las finalidades, derechos, mecanismos y demás parámetros definidos en la política previamente mencionada y, (3) acepta que,según lo establecido en el numeral 4.17 de la misma política, Proimágenes Colombia también lleve a cabo tratamiento para ponerse en contacto con usted cuando exhibidores cinematográficos registrados estén interesados en la adquisición o negociación de cortometrajes postulados en virtud de lo dispuesto por el artículo 2.10.2.5.1 del Decreto 554 de 2017.</p>
-                    <div class="mb-3">
-                        <label class="form-label">¿Acepta?</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="exhibicion" value="si" required>
-                            <label class="form-check-label">Sí</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="exhibicion" value="no" required>
-                            <label class="form-check-label">No</label>
-                        </div>
+                    <p style="text-align: justify;">Al marcar esta casilla usted (1) declara que conoce y entiende plenamente la Política de Protección de Datos Personales del Fondo Mixto de Promoción Cinematográfica "Proimágenes Colombia" (entidad domiciliada en la calle 35 # 5 - 89 de Bogotá y con correo proimagenes@proimagenescolombia.com), la cual puede ser consultada en el sitio web www.proimágenescolombia.com, (2) acepta que Proimágenes Colombia lleve a cabo el tratamiento de sus datos de conformidad con las finalidades, derechos, mecanismos y demás parámetros definidos en la política previamente mencionada y, (3) acepta que,según lo establecido en el numeral 4.17 de la misma política, Proimágenes Colombia también lleve a cabo tratamiento para ponerse en contacto con usted cuando exhibidores cinematográficos registrados estén interesados en la adquisición o negociación de cortometrajes postulados en virtud de lo dispuesto por el artículo 2.10.2.5.1 del Decreto 554 de 2017.</p>
+                    <div>
+                        {% for radio in form.acepta_tyc %}
+                            <div class="form-check">
+                                {{ radio.tag }}
+                                <label class="form-check-label">{{ radio.choice_label }}</label>
+                            </div>
+                        {% endfor %}
                     </div>
                     <button type="button" class="btn btn-secondary" onclick="prevStep()">Atrás</button>
                     <button type="submit" class="btn btn-primary">Enviar Postulación</button>
@@ -378,11 +383,51 @@
         }
 
         function nextStep() {
+            const activeStep = document.querySelector(".form-step.active"); // Obtiene el paso actual
+            const requiredFields = activeStep.querySelectorAll("input[required], textarea[required], select[required]");
+            let valid = true;
+
+            requiredFields.forEach((input) => {
+                if (!input.value.trim()) {
+                    input.classList.add("is-invalid"); // Marca campo como inválido
+                    valid = false;
+                } else {
+                    input.classList.remove("is-invalid"); // Quita error si está bien
+                }
+
+                // Validación de correo electrónico
+                if (input.type === "email" && !/^\S+@\S+\.\S+$/.test(input.value)) {
+                    input.classList.add("is-invalid");
+                    valid = false;
+                    alert("Por favor, ingrese un correo válido.");
+                }
+
+                // Validación de URL solo para enlaces de Vimeo
+                if (input.id === "id_enlace_vimeo" && !/^https?:\/\/(www\.)?vimeo\.com\/.+/.test(input.value)) {
+                    input.classList.add("is-invalid");
+                    valid = false;
+                    alert("Debe ingresar un enlace válido de Vimeo.");
+                }
+
+                // Validación de solo números
+                if (input.type === "number" && isNaN(input.value)) {
+                    input.classList.add("is-invalid");
+                    valid = false;
+                }
+            });
+
+            if (!valid) {
+                alert("Corrige los campos resaltados antes de continuar.");
+                return; // Detiene el avance si hay errores
+            }
+
+            // Si todo está validado, avanza al siguiente paso
             if (currentStep < totalSteps) {
                 currentStep++;
                 showStep(currentStep);
             }
         }
+
 
         function prevStep() {
             if (currentStep > 1) {
@@ -443,6 +488,67 @@
                     inputSiPlataforma.value = ""; 
                 }
             });
+        });
+    });
+    document.getElementById("togglePassword").addEventListener("click", function () {
+        let passwordField = document.getElementById("id_contrasena_vimeo");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";  // Mostrar contraseña
+        } else {
+            passwordField.type = "password";  // Ocultar contraseña
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+
+        form.addEventListener("submit", function (event) {
+            let errores = [];
+            let primerError = null;
+
+            // Obtener todos los campos que deben ser validados
+            const requiredFields = document.querySelectorAll("input[required], textarea[required], select[required]");
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) { // Verifica si está vacío
+                    errores.push(`El campo "${field.name}" es obligatorio.`);
+                    field.classList.add("is-invalid"); // Agrega clase de Bootstrap para mostrar error
+                    if (!primerError) primerError = field;
+                } else {
+                    field.classList.remove("is-invalid"); // Si está bien, elimina la clase de error
+                }
+            });
+
+            // Validar URLs
+            const urlFields = document.querySelectorAll("input[type='url']");
+            urlFields.forEach(field => {
+                let urlPattern = /^(https?:\/\/)?(www\.)?vimeo\.com\/[a-zA-Z0-9-]+\/?/; // Patrón para enlaces de Vimeo
+                if (field.value && !urlPattern.test(field.value)) {
+                    errores.push(`El campo "${field.name}" debe contener una URL válida de Vimeo.`);
+                    field.classList.add("is-invalid");
+                    if (!primerError) primerError = field;
+                } else {
+                    field.classList.remove("is-invalid");
+                }
+            });
+
+            // Validar números
+            const numberFields = document.querySelectorAll("input[type='number']");
+            numberFields.forEach(field => {
+                if (field.value && isNaN(field.value)) {
+                    errores.push(`El campo "${field.name}" debe ser un número válido.`);
+                    field.classList.add("is-invalid");
+                    if (!primerError) primerError = field;
+                } else {
+                    field.classList.remove("is-invalid");
+                }
+            });
+
+            // Mostrar alertas si hay errores
+            if (errores.length > 0) {
+                event.preventDefault(); // Evita que el formulario se envíe
+                alert("Corrige los siguientes errores antes de enviar:\n\n" + errores.join("\n"));
+                primerError.focus(); // Enfocar el primer campo con error
+            }
         });
     });
     </script>
