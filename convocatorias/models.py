@@ -62,7 +62,7 @@ class Postulacion(models.Model):
     acta_clasificacion = models.FileField(upload_to='certificaciones/', null=True, blank=True)
     tipo_persona = models.CharField(max_length=10, choices=TIPO_PERSONA_CHOICES,default='natural')
     autorizacion_uso = models.FileField(upload_to='autorizaciones/', null=True, blank=True)
-    enlace_vimeo = models.URLField(max_length=500, verbose_name="Enlace del corto en Vimeo", help_text="Debe ser un enlace válido de Vimeo.")
+    enlace_vimeo = models.URLField(max_length=500, verbose_name="Enlace del corto en Vimeo", blank=True, null=True)
     contrasena_vimeo = models.CharField(max_length=50, verbose_name="Contraseña del corto en Vimeo", blank=True, null=True)
     principales_festivales = models.TextField()
     nombre_productor = models.TextField()

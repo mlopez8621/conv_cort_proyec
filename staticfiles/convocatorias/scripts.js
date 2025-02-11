@@ -27,12 +27,20 @@ let currentStep = 1;
                     alert("Por favor, ingrese un correo válido.");
                 }
 
-                // Validación de URL solo para enlaces de Vimeo
-                if (input.id === "id_enlace_vimeo" && !/^https?:\/\/(www\.)?vimeo\.com\/.+/.test(input.value)) {
-                    input.classList.add("is-invalid");
-                    valid = false;
-                    alert("Debe ingresar un enlace válido de Vimeo.");
+                // Validación de URL solo para enlaces de Vimeo o YouTube
+                if (input.id === "id_enlace_vimeo") {
+                    const vimeoPattern = /^https?:\/\/(www\.)?vimeo\.com\/\d+/; // URLs de Vimeo
+                    const youtubePattern = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]+/; // URLs de YouTube
+
+                    if (!vimeoPattern.test(input.value) && !youtubePattern.test(input.value)) {
+                        input.classList.add("is-invalid");
+                        valid = false;
+                        alert("Debe ingresar un enlace válido de Vimeo o YouTube.");
+                    } else {
+                        input.classList.remove("is-invalid");
+                    }
                 }
+
 
                 // Validación de solo números
                 if (input.type === "number" && isNaN(input.value)) {
@@ -195,19 +203,6 @@ let currentStep = 1;
                 }
             });
 
-            // Validar URLs
-            const urlFields = document.querySelectorAll("input[type='url']");
-            urlFields.forEach(field => {
-                let urlPattern = /^(https?:\/\/)?(www\.)?vimeo\.com\/[a-zA-Z0-9-]+\/?/; // Patrón para enlaces de Vimeo
-                if (field.value && !urlPattern.test(field.value)) {
-                    errores.push(`El campo "${field.name}" debe contener una URL válida de Vimeo.`);
-                    field.classList.add("is-invalid");
-                    if (!primerError) primerError = field;
-                } else {
-                    field.classList.remove("is-invalid");
-                }
-            });
-
             // Validar números
             const numberFields = document.querySelectorAll("input[type='number']");
             numberFields.forEach(field => {
@@ -252,3 +247,38 @@ let currentStep = 1;
             });
         }
     });
+    document.addEventListener("DOMContentLoaded", function () {
+        const submitButton = document.querySelector("button[type='submit']");
+        const radioSi = document.querySelector("input[name='acepta_tyc'][value='si']");
+        const radioNo = document.querySelector("input[name='acepta_tyc'][value='no']");
+    
+        function validarTyc() {
+            if (!radioSi.checked) {
+                alert("Debe aceptar los términos y condiciones para enviar la postulación.");
+                return false;
+            }
+            return true;
+        }
+    
+        submitButton.addEventListener("click", function (event) {
+            if (!validarTyc()) {
+                event.preventDefault(); // Evita que el formulario se envíe
+            }
+        });
+    
+        // Deshabilitar el botón de envío si "No" está seleccionado
+            radioNo.addEventListener("change", function () {
+                submitButton.disabled = true;
+            });
+        
+            // Habilitar el botón de envío si "Sí" está seleccionado
+            radioSi.addEventListener("change", function () {
+                submitButton.disabled = false;
+            });
+        
+            // Al cargar la página, asegurarse de que el botón esté correctamente habilitado o deshabilitado
+            if (radioNo.checked) {
+                submitButton.disabled = true;
+            }
+        });
+    
