@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Verificación de Postulación</h2>
+
+<h3>{{ postulacion.titulo }}</h3>
+<p><strong>Correo del Productor:</strong> {{ postulacion.correo_productor }}</p>
+<p><strong>Estado Actual:</strong> {{ postulacion.estado }}</p>
+
+<h4>Detalles de la Postulación</h4>
+<ul>
+    <li><strong>Año de Producción:</strong> {{ postulacion.anio_produccion }}</li>
+    <li><strong>Duración:</strong> {{ postulacion.duracion }}</li>
+    <li><strong>Formato de Grabación:</strong> {{ postulacion.formato_grabacion }}</li>
+    <li><strong>Sinopsis:</strong> {{ postulacion.sinopsis_corta }}</li>
+</ul>
+
+<h4>Archivos Adjuntos</h4>
+{% if postulacion.certificacion_fdc %}
+<p><strong>Certificación FDC:</strong> <a href="{{ postulacion.certificacion_fdc.url }}" target="_blank">Ver Documento</a></p>
+{% endif %}
+{% if postulacion.enlace_vimeo %}
+<p><strong>Enlace Vimeo:</strong> <a href="{{ postulacion.enlace_vimeo }}" target="_blank">Ver Corto</a></p>
+{% endif %}
+
+<h4>Comentario del Administrador</h4>
+<form method="POST">
+    {% csrf_token %}
+    <textarea name="comentario_admin" class="form-control" rows="4" placeholder="Motivo del rechazo o comentario..."></textarea>
+    <br>
+
+    <button type="submit" name="aprobar" class="btn btn-success">Aprobar y Enviar a Evaluación</button>
+    <button type="submit" name="rechazar" class="btn btn-danger">Rechazar Postulación</button>
+</form>
+
+<a href="{% url 'lista_postulaciones_admin' %}">Volver</a>
+{% endblock %}

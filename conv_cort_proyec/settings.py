@@ -156,3 +156,18 @@ if DEBUG:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Cambia esto si usas otro proveedor
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'automatizacionprocesos@proimagenescolombia.com'  # Reemplaza con tu correo
+EMAIL_HOST_PASSWORD = 'zxihgwtvmvyjjieh'  # Usa una contraseña segura o App Password
+LOGIN_URL = '/accounts/login/'  # Debe coincidir con la URL de arriba
+LOGIN_REDIRECT_URL = '/convocatorias/lista-postulaciones/'  # Redirigir a home después de iniciar sesión
+LOGOUT_REDIRECT_URL = '/accounts/login/'  # Redirigir al login al cerrar sesión
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Almacena sesiones en la BD
+SESSION_COOKIE_AGE = 3600  # Sesión dura 1 hora (en segundos)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expira al cerrar el navegador
+
+

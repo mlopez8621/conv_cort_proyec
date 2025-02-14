@@ -2,6 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User  # Usamos el modelo predeterminado de Django
 from django.core.validators import RegexValidator
 
+class Evaluador(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)  # Relación con la cuenta de usuario
+    nombre = models.CharField(max_length=255)
+    correo = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.nombre
+
 class Postulacion(models.Model):
     ESTADO_CHOICES = [
         ('pendiente', 'Pendiente'),
@@ -40,6 +48,9 @@ class Postulacion(models.Model):
         ('natural', 'Persona Natural'),
         ('juridica', 'Persona Jurídica'),
     ]
+
+    # Relación N:N (Una postulación puede tener varios evaluadores y viceversa)
+    evaluadores = models.ManyToManyField(Evaluador, related_name="postulaciones", blank=True)
 
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)  # Relación con el usuario que postula
     correo = models.EmailField(unique=True, max_length=255)
@@ -105,4 +116,3 @@ class Veredicto(models.Model):
 
     def __str__(self):
         return f"Veredicto para {self.postulacion.titulo}: {self.decision}"
-

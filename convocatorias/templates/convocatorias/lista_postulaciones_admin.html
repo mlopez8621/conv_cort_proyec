@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Lista de Postulaciones</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for postulacion in postulaciones %}
+        <tr>
+            <td>{{ postulacion.id }}</td>
+            <td>{{ postulacion.titulo }}</td>
+            <td>{{ postulacion.estado }}</td>
+            <td>
+                <a href="{% url 'verificar_postulacion' postulacion.id %}" class="btn btn-primary">Verificar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
