@@ -17,13 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from convocatorias.views import custom_login
 
 urlpatterns = [
     path('admin/', admin.site.urls),  
     path('convocatorias/', include('convocatorias.urls')),  # ✅ Incluye las URLs de la app
 
     # 🔹 Rutas de autenticación (Login y Logout)
-    path('accounts/login/', auth_views.LoginView.as_view(template_name='convocatorias/login.html'), name='login'),
+    path('accounts/login/', custom_login, name='custom_login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]
 

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Evaluar Postulación: {{ postulacion.titulo }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="id_comentario">Comentario:</label>
+        {{ form.comentario }}
+    </div>
+    <div class="mb-3">
+        <label for="id_recomendacion">Recomendación:</label>
+        {{ form.recomendacion }}
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar Evaluación</button>
+</form>
+
+<a href="{% url 'lista_postulaciones_admin' %}" class="btn btn-secondary mt-3">Volver</a>
+{% endblock %}

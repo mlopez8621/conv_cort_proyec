@@ -1,5 +1,6 @@
 from django import forms
 from .models import Postulacion
+from .models import Evaluacion
 
 class PostulacionForm(forms.ModelForm):
     class Meta:
@@ -45,3 +46,13 @@ class PostulacionForm(forms.ModelForm):
             'certificacion_cumplimiento': forms.ClearableFileInput(attrs={'class': 'form-control', 'id': 'id_certificacion_cumplimiento','required': 'required'}),
             'acepta_tyc':forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'id_acepta_tyc'}),
         }
+
+class EvaluacionForm(forms.ModelForm):
+    class Meta:
+        model = Evaluacion
+        fields = ["comentario", "recomendacion"]
+        widgets = {
+            "comentario": forms.Textarea(attrs={"class": "form-control", "placeholder": "Escribe tu evaluación aquí...", "rows": 4}),
+            "recomendacion": forms.Select(attrs={"class": "form-control"}),
+        }
+

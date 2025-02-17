@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Postulaciones Asignadas</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Estado</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for postulacion in postulaciones %}
+        <tr>
+            <td>{{ postulacion.id }}</td>
+            <td>{{ postulacion.titulo }}</td>
+            <td>{{ postulacion.estado }}</td>
+            <td>
+                <a href="{% url 'evaluar_postulacion' postulacion.id %}" class="btn btn-primary">
+                    Evaluar
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No tienes postulaciones asignadas.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

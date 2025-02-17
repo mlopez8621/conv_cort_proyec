@@ -92,14 +92,20 @@ class Postulacion(models.Model):
 
 
 class Evaluacion(models.Model):
-    postulacion = models.ForeignKey(Postulacion, on_delete=models.CASCADE)
-    evaluador = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evaluaciones')  # Evaluador es un usuario
-    comentarios = models.TextField()
-    calificacion = models.IntegerField(default=0)  # Nota del evaluador (escala 1-10 por ejemplo)
+    OPCIONES_RECOMENDACION = [
+        ('si', 'Sí'),
+        ('no', 'No'),
+        ('discusion', 'Discusión'),
+    ]
+
+    postulacion = models.ForeignKey('Postulacion', on_delete=models.CASCADE, related_name="evaluaciones")
+    evaluador = models.ForeignKey(User, on_delete=models.CASCADE, related_name="evaluaciones")
+    comentario = models.TextField(verbose_name="Comentario del evaluador", blank=True, null=True)  # 🔹 Permitir valores nulos
+    recomendacion = models.CharField(max_length=10, choices=OPCIONES_RECOMENDACION, verbose_name="¿Recomienda el corto para exhibición?", blank=True, null=True)
     fecha_evaluacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Evaluación de {self.postulacion.titulo} por {self.evaluador.username}"
+        return f"Evaluación de {self.evaluador.username} - {self.postulacion.titulo}"
 
 
 class Veredicto(models.Model):
