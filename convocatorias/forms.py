@@ -5,7 +5,8 @@ from .models import Evaluacion
 class PostulacionForm(forms.ModelForm):
     class Meta:
         model = Postulacion
-        fields = ['correo','titulo', 'anio_produccion','duracion','formato_grabacion','productor_emp_produc',
+        fields = ['correo','titulo', 'anio_produccion','duracion','genero_cortrometraje','subgenero_cortrometraje',
+                  'otro_subgenero_cortrometraje','formato_grabacion','productor_emp_produc',
                   'nom_director','sinopsis_corta','locaciones_rodaje','beneficiario_fdc', 'anio_fdc',
                   'certificacion_fdc','exhibicion_salas','plataformas_exhibicion', 'si_plataforma','resolucion_cpn',
                   'fecha_resolucion_cpn','certificacion_cpn', 'acta_clasificacion','tipo_persona','autorizacion_uso',
@@ -18,6 +19,9 @@ class PostulacionForm(forms.ModelForm):
             'titulo': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_titulo','placeholder': 'Ingrese el titulo','required': 'required'}),
             'anio_produccion': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese año de produccion','required': 'required'}),
             'duracion': forms.TimeInput(attrs={'class': 'form-control', 'id': 'id_duracion','placeholder': 'Ingrese la doracion del corto HH:MM','required': 'required'}, format='%H:%M'),
+            'genero_cortrometraje': forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'id_genero_cortrometraje','required': 'required'}),
+            'subgenero_cortrometraje': forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'id_subgenero_cortrometraje','required': 'required'}),
+            'otro_subgenero_cortrometraje': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_otro_subgenero_cortrometraje','placeholder': 'Ingrese otro subgenero','required': 'required'}),
             'formato_grabacion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese formato de grabacion','required': 'required'}),
             'productor_emp_produc': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese productor o empresa productora','required': 'required'}),
             'nom_director': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese nombre del director','required': 'required'}),

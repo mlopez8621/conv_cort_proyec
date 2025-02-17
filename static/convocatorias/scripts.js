@@ -281,4 +281,24 @@ let currentStep = 1;
                 submitButton.disabled = true;
             }
         });
+    document.addEventListener("DOMContentLoaded", function () {
+        // Seleccionar todos los radios del subgénero
+        let subgeneroRadios = document.querySelectorAll("input[name='subgenero_cortrometraje']");
+        let otroSubgeneroField = document.querySelector("#id_otro_subgenero_cortrometraje"); // ID del campo "Otro subgénero"
+
+        // Deshabilitar el campo al inicio
+        otroSubgeneroField.disabled = true;
+
+        subgeneroRadios.forEach(radio => {
+            radio.addEventListener("change", function () {
+                // Si se selecciona "Otros", habilitar el campo
+                if (this.value.toLowerCase() === "otro") {
+                    otroSubgeneroField.disabled = false;
+                } else {
+                    otroSubgeneroField.disabled = true;
+                    otroSubgeneroField.value = ""; // Limpiar campo si se deshabilita
+                }
+            });
+        });
+    });    
     

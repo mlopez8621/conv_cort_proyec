@@ -49,6 +49,24 @@ class Postulacion(models.Model):
         ('juridica', 'Persona Jurídica'),
     ]
 
+    GENERO_CORTROMETRAJE_CHOICES = [
+        ('ficcion', 'Ficción'),
+        ('documental', 'Documental'),
+        ('animacion', 'Animación'),
+        ('experimental', 'Experimental'),
+        ('hibrido', 'Híbrido'),
+    ]
+
+    SUBGENERO_CORTROMETRAJE_CHOICES = [
+        ('drama', 'Drama'),
+        ('comedia', 'Comedia'),
+        ('ciencia_ficcion', 'Ciencia Ficción'),
+        ('ensayo', 'Ensayo'),
+        ('suspenso', 'Suspenso'),
+        ('musical', 'Musical'),
+        ('otro', 'Otro'),
+    ]
+
     # Relación N:N (Una postulación puede tener varios evaluadores y viceversa)
     evaluadores = models.ManyToManyField(Evaluador, related_name="postulaciones", blank=True)
 
@@ -57,6 +75,9 @@ class Postulacion(models.Model):
     titulo = models.CharField(max_length=255)
     anio_produccion = models.IntegerField(verbose_name="Año de producción")
     duracion = models.TimeField(verbose_name="Duración (Min)", help_text="Formato HH:MM")
+    genero_cortrometraje = models.CharField(max_length=20, choices=GENERO_CORTROMETRAJE_CHOICES,default='no')
+    subgenero_cortrometraje = models.CharField(max_length=20, choices=SUBGENERO_CORTROMETRAJE_CHOICES,default='no')
+    otro_subgenero_cortrometraje = models.CharField(max_length=255, null=True, blank=True)
     formato_grabacion = models.CharField(max_length=255)
     productor_emp_produc = models.CharField(max_length=255,verbose_name="Productor o empresa productora")
     nom_director = models.CharField(max_length=255,verbose_name="Nombre del director")
