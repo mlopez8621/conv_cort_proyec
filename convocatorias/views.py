@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Postulacion, Evaluador, Evaluacion
+from .models import Postulacion, Evaluador, Evaluacion, PostulacionEvaluadores
 from .forms import PostulacionForm
 from .forms import EvaluacionForm
 from django.http import HttpResponseRedirect
@@ -93,9 +93,13 @@ def asignar_evaluadores(request, postulacion_id):
 
     if request.method == "POST":
         evaluadores_ids = request.POST.getlist('evaluadores')  # Lista de evaluadores seleccionados
+        
         for evaluador_id in evaluadores_ids:
             evaluador = Evaluador.objects.get(id=evaluador_id)
-            postulacion.evaluadores.add(evaluador)
+
+            # Verificar si la asignación ya existe
+            if not PostulacionEvaluadores.objects.filter(postulacion=postulacion, evaluador=evaluador).exists():
+                PostulacionEvaluadores.objects.create(postulacion=postulacion, evaluador=evaluador)
 
         return redirect('verificar_postulacion', postulacion_id=postulacion.id)
 
@@ -110,15 +114,22 @@ def evaluar_postulacion(request, postulacion_id):
     usuario = request.user
     postulacion = get_object_or_404(Postulacion, id=postulacion_id)
 
-    # Verificar si el usuario tiene permiso para evaluar esta postulación
-    evaluacion_asignada = Evaluacion.objects.filter(postulacion=postulacion, evaluador=usuario).exists()
-    
-    if not evaluacion_asignada:
+    # 🔹 Obtener el evaluador relacionado con este usuario
+    try:
+        evaluador = Evaluador.objects.get(usuario=usuario)
+    except Evaluador.DoesNotExist:
         messages.error(request, "No tienes permiso para evaluar esta postulación.")
         return redirect('postulaciones_asignadas')
 
-    # Verifica si ya existe una evaluación o crea una nueva
-    evaluacion, created = Evaluacion.objects.get_or_create(postulacion=postulacion, evaluador=usuario)
+    # 🔹 Verificar si el evaluador tiene asignada esta postulación
+    asignacion_existe = PostulacionEvaluadores.objects.filter(postulacion=postulacion, evaluador=evaluador).exists()
+    
+    if not asignacion_existe:
+        messages.error(request, "No tienes permiso para evaluar esta postulación.")
+        return redirect('postulaciones_asignadas')
+
+    # 🔹 Obtener la evaluación existente o crear una nueva
+    evaluacion, created = Evaluacion.objects.get_or_create(postulacion=postulacion, evaluador=evaluador)
 
     if request.method == "POST":
         form = EvaluacionForm(request.POST, instance=evaluacion)
@@ -131,20 +142,33 @@ def evaluar_postulacion(request, postulacion_id):
 
     return render(request, "convocatorias/evaluar_postulacion.html", {
         "postulacion": postulacion,
-        "form": form  # ✅ Agrega el formulario aquí
+        "form": form  # ✅ Se pasa el formulario a la plantilla
     })
 
 
 @login_required
 def postulaciones_asignadas(request):
-    """
-    Vista que muestra al evaluador solo las postulaciones que tiene asignadas.
-    """
-    usuario = request.user  # Obtener el usuario autenticado
-    evaluaciones = Evaluacion.objects.filter(evaluador=usuario)  # Filtrar solo sus asignaciones
-    postulaciones = [eva.postulacion for eva in evaluaciones]  # Obtener las postulaciones evaluadas
+    usuario = request.user
+    print(f"🔹 Usuario autenticado: {usuario.username} (ID: {usuario.id})")  # 🔹 Debug
+
+    # Buscar el evaluador correspondiente al usuario autenticado
+    try:
+        evaluador = Evaluador.objects.get(usuario=usuario)
+        print(f"✅ Evaluador encontrado: {evaluador} (ID: {evaluador.id})")  # 🔹 Debug
+    except Evaluador.DoesNotExist:
+        print("❌ Evaluador no encontrado para este usuario.")  # 🔹 Debug
+        return render(request, 'convocatorias/postulaciones_asignadas.html', {'postulaciones': []})
+
+    # Obtener las postulaciones asignadas al evaluador
+    postulaciones = Postulacion.objects.filter(
+        id__in=PostulacionEvaluadores.objects.filter(evaluador=evaluador).values_list("postulacion_id", flat=True)
+    )
+
+    print(f"✅ Postulaciones encontradas para el evaluador {evaluador.nombre}: {postulaciones}")
 
     return render(request, 'convocatorias/postulaciones_asignadas.html', {'postulaciones': postulaciones})
+
+
 
 def custom_login(request):
     print("🔹 Entrando a custom_login")  # 🔥 Debug
