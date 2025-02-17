@@ -102,12 +102,6 @@ def asignar_evaluadores(request, postulacion_id):
     evaluadores = Evaluador.objects.all()
     return render(request, 'convocatorias/asignar_evaluadores.html', {'postulacion': postulacion, 'evaluadores': evaluadores})
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Postulacion, Evaluacion
-from .forms import EvaluacionForm  # Importa el formulario
-
 @login_required
 def evaluar_postulacion(request, postulacion_id):
     """
