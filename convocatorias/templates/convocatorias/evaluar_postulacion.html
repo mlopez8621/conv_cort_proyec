@@ -1,20 +1,158 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Evaluar Postulación: {{ postulacion.titulo }}</h2>
+<div class="container mt-4">
+    <h2 class="text-center"><i class="bi bi-clipboard-check"></i> Evaluar Postulación</h2>
 
-<form method="POST">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label for="id_comentario">Comentario:</label>
-        {{ form.comentario }}
+    <!-- 🔹 Información principal -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h3 class="text-primary">{{ postulacion.titulo }}</h3>
+        <p><strong>Correo del Productor:</strong> <a href="mailto:{{ postulacion.correo_productor }}">{{ postulacion.correo_productor }}</a></p>
+        <p><strong>Estado Actual:</strong> 
+            <span class="badge 
+                {% if postulacion.estado == 'evaluacion' %} bg-warning text-dark 
+                {% elif postulacion.estado == 'rechazado' %} bg-danger
+                {% elif postulacion.estado == 'aceptado' %} bg-success
+                {% else %} bg-secondary
+                {% endif %}">
+                {{ postulacion.get_estado_display }}
+            </span>
+        </p>
     </div>
-    <div class="mb-3">
-        <label for="id_recomendacion">Recomendación:</label>
-        {{ form.recomendacion }}
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar Evaluación</button>
-</form>
 
-<a href="{% url 'postulaciones_asignadas' %}" class="btn btn-secondary mt-3">Volver</a>
+    <!-- 🔹 Sección de Detalles -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4 mb-4">
+                <h4>Detalles del Cortometraje</h4>
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Año de Producción:</strong> {{ postulacion.anio_produccion }}</li>
+                    <li class="list-group-item"><strong>Duración:</strong> {{ postulacion.duracion }}</li>
+                    <li class="list-group-item"><strong>Género:</strong> {{ postulacion.get_genero_cortrometraje_display }}</li>
+                    <li class="list-group-item"><strong>Subgénero:</strong> {{ postulacion.get_subgenero_cortrometraje_display }}</li>
+                    {% if postulacion.subgenero_cortrometraje == "otro" %}
+                        <li class="list-group-item"><strong>Otro Subgénero:</strong> {{ postulacion.otro_subgenero_cortrometraje }}</li>
+                    {% endif %}
+                    <li class="list-group-item"><strong>Formato de Grabación:</strong> {{ postulacion.formato_grabacion }}</li>
+                    <li class="list-group-item"><strong>Locaciones del Rodaje:</strong> {{ postulacion.locaciones_rodaje }}</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm p-4 mb-4">
+                    <h4>Sinopsis</h4>
+                    <p>{{ postulacion.sinopsis_corta }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4 mb-4">
+                <h4>Historial y Exhibición</h4>
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>¿Beneficiario del FDC?:</strong> {{ postulacion.get_beneficiario_fdc_display }}</li>
+                    {% if postulacion.beneficiario_fdc == "si" %}
+                        <li class="list-group-item"><strong>Año del Beneficio:</strong> {{ postulacion.anio_fdc }}</li>
+                    {% endif %}
+                    <li class="list-group-item"><strong>¿El corto ha estado en otras plataformas?:</strong> {{ postulacion.get_plataformas_exhibicion_display }}</li>
+                    {% if postulacion.plataformas_exhibicion == "otro" %}
+                        <li class="list-group-item"><strong>Plataformas:</strong> {{ postulacion.si_plataforma }}</li>
+                    {% endif %}
+                    <li class="list-group-item"><strong>¿Postulado anteriormente?:</strong> {{ postulacion.get_postulado_antes_display }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 Resolución y Autorizaciones -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h4>Resolución y Autorizaciones</h4>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Número de Resolución CPN:</strong> {{ postulacion.resolucion_cpn }}</li>
+            <li class="list-group-item"><strong>Fecha de Resolución CPN:</strong> {{ postulacion.fecha_resolucion_cpn }}</li>
+        </ul>
+    </div>
+
+    <!-- 🔹 Enlaces del Corto -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h4>Enlaces del Corto</h4>
+        {% if postulacion.enlace_vimeo %}
+            <p><strong>Enlace Vimeo:</strong> <a href="{{ postulacion.enlace_vimeo }}" class="btn btn-primary btn-sm" target="_blank">Ver Corto</a></p>
+        {% endif %}
+        {% if postulacion.contrasena_vimeo %}
+            <p><strong>Contraseña Vimeo:</strong> <code>{{ postulacion.contrasena_vimeo }}</code></p>
+        {% endif %}
+    </div>
+
+    <!-- 🔹 Documentos Adjuntos -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h4>Documentos Adjuntos</h4>
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+            {% if postulacion.certificacion_fdc %}
+            <div class="col">
+                <div class="card border-0 shadow-sm p-2">
+                    <a href="{{ postulacion.certificacion_fdc.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                        📄 Certificación FDC
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            {% if postulacion.certificacion_cpn %}
+            <div class="col">
+                <div class="card border-0 shadow-sm p-2">
+                    <a href="{{ postulacion.certificacion_cpn.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                        📜 Certificación CPN
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            {% if postulacion.acta_clasificacion %}
+            <div class="col">
+                <div class="card border-0 shadow-sm p-2">
+                    <a href="{{ postulacion.acta_clasificacion.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                        🏛️ Acta de Clasificación
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            {% if postulacion.autorizacion_uso %}
+            <div class="col">
+                <div class="card border-0 shadow-sm p-2">
+                    <a href="{{ postulacion.autorizacion_uso.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                        🔏 Autorización de Uso
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            {% if postulacion.certificacion_cumplimiento %}
+            <div class="col">
+                <div class="card border-0 shadow-sm p-2">
+                    <a href="{{ postulacion.certificacion_cumplimiento.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                        ✅ Certificación de Cumplimiento
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 🔹 Formulario de Evaluación -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h4>Evaluación del Corto</h4>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_comentario" class="form-label"><strong>Comentario:</strong></label>
+                {{ form.comentario }}
+            </div>
+            <div class="mb-3">
+                <label for="id_recomendacion" class="form-label"><strong>Recomendación:</strong></label>
+                {{ form.recomendacion }}
+            </div>
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'postulaciones_asignadas' %}" class="btn btn-dark">🔙 Volver</a>
+                <button type="submit" class="btn btn-success">💾 Guardar Evaluación</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

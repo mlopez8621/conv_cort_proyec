@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-danger text-center">
+        <h4><i class="bi bi-x-circle-fill"></i> ¡Postulación Rechazada!</h4>
+        <p>La postulación "<strong>{{ postulacion.titulo }}</strong>" ha sido rechazada correctamente.</p>
+        <p>El productor recibirá la notificación correspondiente.</p>
+        <a href="{% url 'lista_postulaciones_admin' %}" class="btn btn-primary mt-3">🔙 Volver a la Lista de Postulaciones</a>
+    </div>
+</div>
+{% endblock %}

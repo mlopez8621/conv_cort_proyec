@@ -1,24 +1,36 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-<h2>Asignar Evaluadores a "{{ postulacion.titulo }}"</h2>
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <h2 class="text-center"><i class="bi bi-person-check"></i> Asignar Evaluadores a "{{ postulacion.titulo }}"</h2>
 
-<!-- Formulario para asignar evaluadores -->
-<form method="POST" onsubmit="return validarFormulario()">
-    {% csrf_token %}
-    <label for="evaluadores"><strong>Seleccionar Evaluadores:</strong></label>
-    <select name="evaluadores" id="evaluadores" multiple class="form-control">
-        {% for evaluador in evaluadores %}
-        <option value="{{ evaluador.id }}">{{ evaluador.nombre }}</option>
-        {% endfor %}
-    </select>
+        <!-- Formulario para asignar evaluadores -->
+        <form method="POST" onsubmit="return validarFormulario()">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="evaluadores" class="form-label"><strong>Seleccionar Evaluadores:</strong></label>
+                <select name="evaluadores" id="evaluadores" multiple class="form-select">
+                    <option disabled>-- Selecciona uno o más evaluadores --</option>
+                    {% for evaluador in evaluadores %}
+                    <option value="{{ evaluador.id }}">{{ evaluador.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <small class="text-muted">Mantén presionada la tecla Ctrl (Cmd en Mac) para seleccionar múltiples evaluadores.</small>
+            </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Asignar Evaluadores</button>
-</form>
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'verificar_postulacion' postulacion.id %}" class="btn btn-secondary">
+                    🔙 Volver
+                </a>
+                <button type="submit" class="btn btn-primary">✅ Asignar Evaluadores</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-<!-- Botón para volver -->
-<a href="{% url 'verificar_postulacion' postulacion.id %}" class="btn btn-secondary mt-3">Volver</a>
- <!-- ✅ Archivo JS externo, justo antes de cerrar body -->
- <script src="{% static 'convocatorias/scripts-ae.js' %}"></script>
+<!-- Archivo JS externo -->
+<script src="{% static 'convocatorias/scripts-ae.js' %}"></script>
 
 {% endblock %}

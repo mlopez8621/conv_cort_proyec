@@ -91,7 +91,7 @@ def verificar_postulacion(request, postulacion_id):
             #    recipient_list=[postulacion.correo_productor],
             #)
 
-            return redirect('lista_postulaciones_admin')  # Redirige a la lista de postulaciones
+            return render(request, 'convocatorias/rechazo_exitoso.html', {'postulacion': postulacion})  
 
     return render(request, 'convocatorias/verificar_postulacion.html', {'postulacion': postulacion})
 
