@@ -20,7 +20,12 @@
                     <td><strong>{{ postulacion.id }}</strong></td>
                     <td>{{ postulacion.titulo }}</td>
                     <td>
-                        <span class="badge {% if postulacion.estado == 'evaluacion' %} bg-warning text-dark {% else %} bg-success {% endif %}">
+                        <span class="badge 
+                            {% if postulacion.estado == 'evaluacion' %} bg-warning text-dark 
+                            {% elif postulacion.estado == 'rechazado' %} bg-danger
+                            {% elif postulacion.estado == 'aceptado' %} bg-success
+                            {% else %} bg-secondary
+                            {% endif %}">
                             {{ postulacion.estado }}
                         </span>
                     </td>

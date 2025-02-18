@@ -68,12 +68,12 @@ def verificar_postulacion(request, postulacion_id):
             postulacion.save()
 
             # Enviar correo de aprobación al productor
-            send_mail(
-                subject="Postulación Aprobada",
-                message=f"Su postulación '{postulacion.titulo}' ha sido aprobada y enviada a evaluación.\n\nComentario del administrador: {comentario_admin}",
-                from_email="automatizacionprocesos@proimagenescolombia.com",
-                recipient_list=[postulacion.correo_productor],
-            )
+            #send_mail(
+            #    subject="Postulación Aprobada",
+            #    message=f"Su postulación '{postulacion.titulo}' ha sido aprobada y enviada a evaluación.\n\nComentario del administrador: {comentario_admin}",
+            #    from_email="automatizacionprocesos@proimagenescolombia.com",
+            #    recipient_list=[postulacion.correo_productor],
+            #)
 
             return redirect('asignar_evaluadores', postulacion_id=postulacion.id)  # Redirige a la vista de asignación
 
@@ -84,12 +84,12 @@ def verificar_postulacion(request, postulacion_id):
             postulacion.save()
 
             # Enviar correo de rechazo
-            send_mail(
-                subject="Postulación Aprobada",
-                message=f"Su postulación '{postulacion.titulo}' ha sido aprobada.",
-                from_email="automatizacionprocesos@proimagenescolombia.com",
-                recipient_list=[postulacion.correo_productor],
-            )
+            #send_mail(
+            #    subject="Postulación Aprobada",
+            #    message=f"Su postulación '{postulacion.titulo}' ha sido aprobada.",
+            #    from_email="automatizacionprocesos@proimagenescolombia.com",
+            #    recipient_list=[postulacion.correo_productor],
+            #)
 
             return redirect('lista_postulaciones_admin')  # Redirige a la lista de postulaciones
 
