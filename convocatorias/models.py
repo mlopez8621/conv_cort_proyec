@@ -7,8 +7,12 @@ class Evaluador(models.Model):
     nombre = models.CharField(max_length=255)
     correo = models.EmailField(unique=True)
 
+    class Meta:
+        verbose_name = "Evaluador"
+        verbose_name_plural = "Evaluadores"
+
     def __str__(self):
-        return self.nombre
+        return self.usuario.username
 
 class Postulacion(models.Model):
     ESTADO_CHOICES = [
@@ -108,6 +112,10 @@ class Postulacion(models.Model):
     fecha_postulacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
 
+    class Meta:
+        verbose_name = "Postulación"
+        verbose_name_plural = "Postulaciones"
+
     def __str__(self):
         return f"{self.titulo} - {self.usuario.username}"
 
@@ -125,9 +133,12 @@ class Evaluacion(models.Model):
     recomendacion = models.CharField(max_length=10, choices=OPCIONES_RECOMENDACION, verbose_name="¿Recomienda el corto para exhibición?", blank=True, null=True)
     fecha_evaluacion = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Evaluación de {self.evaluador.username} - {self.postulacion.titulo}"
+    class Meta:
+        verbose_name = "Evaluación"
+        verbose_name_plural = "Evaluaciones"
 
+    def __str__(self):
+        return f"Evaluación de {self.evaluador.usuario.username} - {self.postulacion.titulo}"
 
 class Veredicto(models.Model):
     DECISION_CHOICES = [
@@ -150,6 +161,8 @@ class PostulacionEvaluadores(models.Model):
 
     class Meta:
         db_table = "convocatorias_postulacion_evaluadores"
+        verbose_name = "Asignación Curador"
+        verbose_name_plural = "Asignaciones Curador"    
 
     def __str__(self):
         return f"{self.evaluador.nombre} - {self.postulacion.titulo}"
