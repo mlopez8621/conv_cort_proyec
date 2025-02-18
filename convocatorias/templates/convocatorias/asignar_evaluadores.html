@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 <h2>Asignar Evaluadores a "{{ postulacion.titulo }}"</h2>
 
-<form method="POST">
+<!-- Formulario para asignar evaluadores -->
+<form method="POST" onsubmit="return validarFormulario()">
     {% csrf_token %}
-    <label for="evaluadores">Seleccionar Evaluadores:</label>
-    <select name="evaluadores" multiple class="form-control">
+    <label for="evaluadores"><strong>Seleccionar Evaluadores:</strong></label>
+    <select name="evaluadores" id="evaluadores" multiple class="form-control">
         {% for evaluador in evaluadores %}
         <option value="{{ evaluador.id }}">{{ evaluador.nombre }}</option>
         {% endfor %}
@@ -15,5 +16,9 @@
     <button type="submit" class="btn btn-primary mt-3">Asignar Evaluadores</button>
 </form>
 
-<a href="{% url 'verificar_postulacion' postulacion.id %}">Volver</a>
+<!-- Botón para volver -->
+<a href="{% url 'verificar_postulacion' postulacion.id %}" class="btn btn-secondary mt-3">Volver</a>
+ <!-- ✅ Archivo JS externo, justo antes de cerrar body -->
+ <script src="{% static 'convocatorias/scripts-ae.js' %}"></script>
+
 {% endblock %}

@@ -300,5 +300,14 @@ let currentStep = 1;
                 }
             });
         });
-    });    
+    });
+    
+    function validarFormulario() {
+        let seleccionados = document.getElementById("evaluadores").selectedOptions.length;
+        if (seleccionados === 0) {
+            alert("⚠️ Debes seleccionar al menos un evaluador antes de asignarlos.");
+            return false;  // Previene el envío del formulario
+        }
+        return true;  // Permite el envío si al menos uno fue seleccionado
+    }
     

@@ -10,20 +10,39 @@ from .forms import EvaluacionForm
 from django.http import HttpResponseRedirect
 
 def postulacion_publica(request):
+    print("🔹 Entrando a postulacion_publica")  # 🔥 Debug
+
     if request.method == 'POST':
+        print("🔹 Se recibió un POST request")  # 🔥 Debug
+        print(f"🔹 Datos recibidos: {request.POST}")  # 🔥 Debug
+
         form = PostulacionForm(request.POST, request.FILES)
         if form.is_valid():
+            print("✅ El formulario es válido")  # 🔥 Debug
+
             postulacion = form.save(commit=False)
-            
-            # Asignar el usuario "postulante" a la postulación
-            postulacion.usuario = User.objects.get(username='postulante')
-            
-            postulacion.save()
-            return redirect('postulacion_exitosa')  # Redirige tras éxito
+
+            try:
+                postulacion.usuario = User.objects.get(username='postulante')
+                print(f"✅ Usuario encontrado: {postulacion.usuario}")  # 🔥 Debug
+                
+                postulacion.save()
+                print("✅ Postulación guardada correctamente")  # 🔥 Debug
+
+                return redirect('postulacion_exitosa')
+            except User.DoesNotExist:
+                print("❌ ERROR: Usuario 'postulante' no encontrado")  # 🔥 Debug
+                messages.error(request, "Error: No se encontró el usuario 'postulante'. Contacte con el administrador.")
+        else:
+            print("❌ ERROR: Formulario no válido")  # 🔥 Debug
+            print(form.errors.as_json())  # 🔥 Debug para ver los errores
+
     else:
+        print("🔹 Se recibió un GET request")  # 🔥 Debug
         form = PostulacionForm()
-    
+
     return render(request, 'convocatorias/postulacion_publica.html', {'form': form})
+
 
 def postulacion_exitosa(request):
     return render(request, 'convocatorias/postulacion_exitosa.html')
@@ -85,26 +104,55 @@ def lista_postulaciones_admin(request):
     postulaciones = Postulacion.objects.all()
     return render(request, 'convocatorias/lista_postulaciones_admin.html', {'postulaciones': postulaciones})
 
+@login_required
+@user_passes_test(es_admin)
 def asignar_evaluadores(request, postulacion_id):
     """
     Vista que permite asignar evaluadores a una postulación.
     """
     postulacion = get_object_or_404(Postulacion, id=postulacion_id)
+    print(f"🔹 Postulación encontrada: {postulacion} (ID: {postulacion.id})")  # 🔍 Debug
 
     if request.method == "POST":
         evaluadores_ids = request.POST.getlist('evaluadores')  # Lista de evaluadores seleccionados
-        
+        print(f"🔹 Evaluadores seleccionados: {evaluadores_ids}")  # 🔍 Debug
+
+        if not evaluadores_ids:
+            messages.error(request, "❌ No seleccionaste ningún evaluador.")
+            return redirect('verificar_postulacion', postulacion_id=postulacion.id)
+
+        asignados = 0  # Contador de asignaciones exitosas
+        ya_asignados = 0  # Contador de evaluadores ya asignados
+
         for evaluador_id in evaluadores_ids:
-            evaluador = Evaluador.objects.get(id=evaluador_id)
+            try:
+                evaluador = Evaluador.objects.get(id=evaluador_id)
+                print(f"✅ Evaluador encontrado: {evaluador.nombre} (ID: {evaluador.id})")  # 🔍 Debug
 
-            # Verificar si la asignación ya existe
-            if not PostulacionEvaluadores.objects.filter(postulacion=postulacion, evaluador=evaluador).exists():
-                PostulacionEvaluadores.objects.create(postulacion=postulacion, evaluador=evaluador)
+                # Verificar si la asignación ya existe
+                if PostulacionEvaluadores.objects.filter(postulacion=postulacion, evaluador=evaluador).exists():
+                    print(f"⚠️ Asignación ya existe para {evaluador.nombre}")
+                    ya_asignados += 1
+                else:
+                    PostulacionEvaluadores.objects.create(postulacion=postulacion, evaluador=evaluador)
+                    print(f"✅ Asignación creada: {evaluador.nombre} → {postulacion.titulo}")  # 🔍 Debug
+                    asignados += 1
 
-        return redirect('verificar_postulacion', postulacion_id=postulacion.id)
+            except Evaluador.DoesNotExist:
+                print(f"❌ ERROR: Evaluador con ID {evaluador_id} no existe.")  # 🔍 Debug
+
+        print(f"🔹 Total Asignados: {asignados}, Ya Asignados: {ya_asignados}")  # 🔍 Debug
+
+        # Enviar los datos a la plantilla correctamente
+        return render(request, 'convocatorias/asignacion_exitosa.html', {
+            'postulacion': postulacion,
+            'asignados': asignados,
+            'ya_asignados': ya_asignados
+        })
 
     evaluadores = Evaluador.objects.all()
     return render(request, 'convocatorias/asignar_evaluadores.html', {'postulacion': postulacion, 'evaluadores': evaluadores})
+
 
 @login_required
 def evaluar_postulacion(request, postulacion_id):
@@ -135,8 +183,9 @@ def evaluar_postulacion(request, postulacion_id):
         form = EvaluacionForm(request.POST, instance=evaluacion)
         if form.is_valid():
             form.save()
-            messages.success(request, "Evaluación guardada correctamente.")
-            return redirect("postulaciones_asignadas")
+            return render(request, "convocatorias/evaluacion_exitosa.html", {
+                "postulacion": postulacion
+            })  # ✅ Muestra la página de confirmación antes de redirigir
     else:
         form = EvaluacionForm(instance=evaluacion)
 

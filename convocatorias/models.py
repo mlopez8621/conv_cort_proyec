@@ -68,15 +68,15 @@ class Postulacion(models.Model):
     ]
 
     # Relación N:N (Una postulación puede tener varios evaluadores y viceversa)
-    evaluadores = models.ManyToManyField(Evaluador, related_name="postulaciones", blank=True)
+    evaluadores = models.ManyToManyField(Evaluador, through="PostulacionEvaluadores", related_name="postulaciones")
 
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)  # Relación con el usuario que postula
-    correo = models.EmailField(unique=True, max_length=255)
+    correo = models.EmailField(max_length=255)
     titulo = models.CharField(max_length=255)
     anio_produccion = models.IntegerField(verbose_name="Año de producción")
     duracion = models.TimeField(verbose_name="Duración (Min)", help_text="Formato HH:MM")
-    genero_cortrometraje = models.CharField(max_length=20, choices=GENERO_CORTROMETRAJE_CHOICES,default='no')
-    subgenero_cortrometraje = models.CharField(max_length=20, choices=SUBGENERO_CORTROMETRAJE_CHOICES,default='no')
+    genero_cortrometraje = models.CharField(max_length=20, choices=GENERO_CORTROMETRAJE_CHOICES,blank=False,null=False,default='ficcion')
+    subgenero_cortrometraje = models.CharField(max_length=20, choices=SUBGENERO_CORTROMETRAJE_CHOICES,blank=False,null=False,default='drama')
     otro_subgenero_cortrometraje = models.CharField(max_length=255, null=True, blank=True)
     formato_grabacion = models.CharField(max_length=255)
     productor_emp_produc = models.CharField(max_length=255,verbose_name="Productor o empresa productora")
@@ -101,7 +101,7 @@ class Postulacion(models.Model):
     nombre_productor = models.CharField(max_length=255)
     celular_productor = models.CharField(max_length=15, validators=[RegexValidator(regex=r'^\+?\d{1,15}$',            message="Número inválido. Use el formato: +573001234567 o 3001234567")],verbose_name="Número de celular del productor")
     domicilio_productor = models.CharField(max_length=255)
-    correo_productor = models.EmailField(unique=True, max_length=255)
+    correo_productor = models.EmailField(max_length=255)
     postulado_antes = models.CharField(max_length=2, choices=POSTULADO_ANTES_CHOICES, default='no')
     certificacion_cumplimiento = models.FileField(upload_to='certificaciones/', null=True, blank=True)
     acepta_tyc = models.CharField(max_length=2, choices=ACEPTA_TYC_CHOICES, default='no')
@@ -147,6 +147,9 @@ class Veredicto(models.Model):
 class PostulacionEvaluadores(models.Model):
     postulacion = models.ForeignKey(Postulacion, on_delete=models.CASCADE)
     evaluador = models.ForeignKey(Evaluador, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "convocatorias_postulacion_evaluadores"
 
     def __str__(self):
         return f"{self.evaluador.nombre} - {self.postulacion.titulo}"
