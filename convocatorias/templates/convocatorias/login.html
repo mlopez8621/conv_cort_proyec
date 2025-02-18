@@ -1,22 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Iniciar Sesión</h2>
+<div class="container d-flex justify-content-center ">
+    <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
+        <h2 class="text-center mb-4">🔐 Iniciar Sesión</h2>
 
-<!-- Muestra el mensaje de error si las credenciales son incorrectas -->
-{% if form.errors %}
-  <p style="color: red;">Usuario o contraseña incorrectos</p>
-{% endif %}
-<form method="POST" action="{% url 'custom_login' %}">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label for="id_username">Usuario:</label>
-        <input type="text" name="username" class="form-control" required>
+        <!-- Muestra el mensaje de error si las credenciales son incorrectas -->
+        {% if form.errors %}
+        <div class="alert alert-danger text-center">
+            ❌ Usuario o contraseña incorrectos.
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'custom_login' %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Usuario</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" name="username" id="id_username" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_password" class="form-label">Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input type="password" name="password" id="id_password" class="form-control" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">🚀 Ingresar</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <small>© 2025 Convocatorias</small>
+        </div>
     </div>
-    <div class="mb-3">
-        <label for="id_password">Contraseña:</label>
-        <input type="password" name="password" class="form-control" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Ingresar</button>
-</form>
+</div>
 {% endblock %}

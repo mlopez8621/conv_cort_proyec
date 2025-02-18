@@ -1,29 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Lista de Postulaciones</h2>
+<div class="container mt-3"> <!-- 🔹 Reduje la distancia con mt-3 en lugar de mt-4 -->
+    <h2 class="text-center"><i class="bi bi-list-check"></i> Lista de Postulaciones</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for postulacion in postulaciones %}
-        <tr>
-            <td>{{ postulacion.id }}</td>
-            <td>{{ postulacion.titulo }}</td>
-            <td>{{ postulacion.estado }}</td>
-            <td>
-                <a href="{% url 'verificar_postulacion' postulacion.id %}" class="btn btn-primary">Verificar</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
+    <div class="table-responsive mt-3"> <!-- 🔹 También reduje el margen -->
+        <table class="table table-hover align-middle text-center shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for postulacion in postulaciones %}
+                <tr>
+                    <td><strong>{{ postulacion.id }}</strong></td>
+                    <td>{{ postulacion.titulo }}</td>
+                    <td>
+                        <span class="badge {% if postulacion.estado == 'evaluacion' %} bg-warning text-dark {% else %} bg-success {% endif %}">
+                            {{ postulacion.estado }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'verificar_postulacion' postulacion.id %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-eye"></i> Verificar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-muted">No hay postulaciones disponibles</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

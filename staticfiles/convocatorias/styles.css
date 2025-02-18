@@ -29,3 +29,55 @@ body {
     border: 2px solid red;
     background-color: #ffe6e6;
 }
+
+/* Ajustes en la navbar */
+.navbar {
+    padding: 12px;
+}
+
+/* Botón primario */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Botón de cerrar sesión */
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Footer */
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Tabla */
+.table th {
+    text-transform: uppercase;
+}
+
+/* Mensaje cuando no hay postulaciones */
+.text-muted {
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+/* Asegurar que la tabla no quede centrada en la pantalla */
+.container {
+    min-height: calc(100vh - 150px); /* Ajuste para evitar mucho espacio vacío */
+}
+
+/* Hacer que la tabla inicie más arriba */
+.table-responsive {
+    margin-top: 20px !important; /* Ajusta la distancia superior */
+}
+
