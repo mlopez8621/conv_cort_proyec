@@ -251,7 +251,7 @@ def custom_login(request):
 
 def lista_postulaciones_admin(request):
     postulaciones_list = Postulacion.objects.all().order_by('-id')  # Ordena por ID descendente
-    paginator = Paginator(postulaciones_list, 2)  # Muestra 5 postulaciones por página
+    paginator = Paginator(postulaciones_list, 5)  # Muestra 5 postulaciones por página
 
     page_number = request.GET.get('page')
     postulaciones = paginator.get_page(page_number)
@@ -269,7 +269,7 @@ def postulaciones_asignadas(request):
         postulaciones_list = Postulacion.objects.none()  # Si no es evaluador, devolver vacío
 
     # Paginar los resultados (5 postulaciones por página)
-    paginator = Paginator(postulaciones_list, 2)
+    paginator = Paginator(postulaciones_list, 5)
     page_number = request.GET.get("page")
     postulaciones = paginator.get_page(page_number)
 
