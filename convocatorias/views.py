@@ -61,7 +61,11 @@ def verificar_postulacion(request, postulacion_id):
     postulacion = get_object_or_404(Postulacion, id=postulacion_id)
 
     if request.method == "POST":
-        comentario_admin = request.POST.get("comentario_admin", "")
+        comentario_admin = request.POST.get("comentario_admin", "").strip()
+
+        # Guarda siempre el comentario antes de cualquier cambio de estado
+        postulacion.comentario_admin = comentario_admin
+        postulacion.revisado_por_admin = True
 
         if "aprobar" in request.POST:
             postulacion.estado = "evaluacion"
@@ -80,8 +84,6 @@ def verificar_postulacion(request, postulacion_id):
 
         elif "rechazar" in request.POST:
             postulacion.estado = "rechazado"
-            postulacion.revisado_por_admin = True
-            postulacion.comentario_admin = comentario_admin
             postulacion.save()
 
             # Enviar correo de rechazo
@@ -249,6 +251,7 @@ def custom_login(request):
     print("❌ Redirigiendo a login (Acceso por GET)")  # 🔹 Debug
     return render(request, "convocatorias/login.html")
 
+@login_required
 def lista_postulaciones_admin(request):
     postulaciones_list = Postulacion.objects.all().order_by('-id')  # Ordena por ID descendente
     paginator = Paginator(postulaciones_list, 5)  # Muestra 5 postulaciones por página
@@ -258,15 +261,16 @@ def lista_postulaciones_admin(request):
 
     return render(request, 'convocatorias/lista_postulaciones_admin.html', {'postulaciones': postulaciones})
 
+@login_required
 def postulaciones_asignadas(request):
-    # Obtener el evaluador correspondiente al usuario autenticado
-    evaluador = Evaluador.objects.filter(usuario=request.user).first()
+    # Obtener el evaluador asociado al usuario autenticado
+    try:
+        evaluador = Evaluador.objects.get(usuario=request.user)
+    except Evaluador.DoesNotExist:
+        return render(request, "error.html", {"mensaje": "No tienes asignaciones de evaluación."})
 
-    if evaluador:
-        # Obtener las postulaciones asignadas a ese evaluador
-        postulaciones_list = Postulacion.objects.filter(evaluadores=evaluador)
-    else:
-        postulaciones_list = Postulacion.objects.none()  # Si no es evaluador, devolver vacío
+    # Obtener postulaciones asignadas al evaluador
+    postulaciones_list = Postulacion.objects.filter(evaluador=evaluador)
 
     # Paginar los resultados (5 postulaciones por página)
     paginator = Paginator(postulaciones_list, 5)

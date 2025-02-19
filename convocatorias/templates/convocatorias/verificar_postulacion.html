@@ -175,7 +175,7 @@
         <h5>📝 Comentario del Administrador</h5>
         <form method="POST">
             {% csrf_token %}
-            <textarea name="comentario_admin" class="form-control mb-3" rows="3" placeholder="Motivo del rechazo o comentario..."></textarea>
+            <textarea name="comentario_admin" class="form-control mb-3" rows="3" placeholder="Motivo del rechazo o comentario...">{{ postulacion.comentario_admin }}</textarea>
             <div class="d-flex gap-2">
                 <button type="submit" name="aprobar" class="btn btn-success w-50">✅ Aprobar y Enviar</button>
                 <button type="submit" name="rechazar" class="btn btn-danger w-50">❌ Rechazar</button>

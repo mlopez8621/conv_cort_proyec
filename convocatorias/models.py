@@ -111,6 +111,7 @@ class Postulacion(models.Model):
     acepta_tyc = models.CharField(max_length=2, choices=ACEPTA_TYC_CHOICES, default='no')
     fecha_postulacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    comentario_admin = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Postulación"
