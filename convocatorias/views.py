@@ -100,15 +100,6 @@ def verificar_postulacion(request, postulacion_id):
 
 @login_required
 @user_passes_test(es_admin)
-def lista_postulaciones_admin(request):
-    """
-    Vista que muestra todas las postulaciones para los administradores.
-    """
-    postulaciones = Postulacion.objects.all()
-    return render(request, 'convocatorias/lista_postulaciones_admin.html', {'postulaciones': postulaciones})
-
-@login_required
-@user_passes_test(es_admin)
 def asignar_evaluadores(request, postulacion_id):
     """
     Vista que permite asignar evaluadores a una postulación.
@@ -252,29 +243,51 @@ def custom_login(request):
     return render(request, "convocatorias/login.html")
 
 @login_required
+@user_passes_test(es_admin)
 def lista_postulaciones_admin(request):
+    """
+    Vista que muestra todas las postulaciones para los administradores con paginación.
+    """
     postulaciones_list = Postulacion.objects.all().order_by('-id')  # Ordena por ID descendente
-    paginator = Paginator(postulaciones_list, 5)  # Muestra 5 postulaciones por página
+    paginator = Paginator(postulaciones_list, 5)  # 5 postulaciones por página
 
     page_number = request.GET.get('page')
     postulaciones = paginator.get_page(page_number)
 
     return render(request, 'convocatorias/lista_postulaciones_admin.html', {'postulaciones': postulaciones})
 
+
 @login_required
 def postulaciones_asignadas(request):
-    # Obtener el evaluador asociado al usuario autenticado
+    usuario = request.user
+    print(f"🔹 Usuario autenticado: {usuario.username} (ID: {usuario.id})")  # 🔹 Debug
+
+    # Intentar obtener el evaluador correspondiente al usuario autenticado
     try:
-        evaluador = Evaluador.objects.get(usuario=request.user)
+        evaluador = Evaluador.objects.get(usuario=usuario)
+        print(f"✅ Evaluador encontrado: {evaluador} (ID: {evaluador.id})")  # 🔹 Debug
     except Evaluador.DoesNotExist:
-        return render(request, "error.html", {"mensaje": "No tienes asignaciones de evaluación."})
+        print("❌ Evaluador no encontrado para este usuario.")  # 🔹 Debug
+        return render(request, 'convocatorias/postulaciones_asignadas.html', {'postulaciones': [], 'mensaje': "No tienes asignaciones de evaluación."})
 
-    # Obtener postulaciones asignadas al evaluador
-    postulaciones_list = Postulacion.objects.filter(evaluador=evaluador)
+    # Obtener postulaciones asignadas al evaluador usando la tabla intermedia
+    postulaciones_list = Postulacion.objects.filter(
+        id__in=PostulacionEvaluadores.objects.filter(evaluador=evaluador).values_list("postulacion_id", flat=True)
+    )
 
-    # Paginar los resultados (5 postulaciones por página)
+    print(f"✅ Postulaciones encontradas para el evaluador {evaluador.nombre}: {postulaciones_list}")  # 🔹 Debug
+
+    # Paginar resultados (5 postulaciones por página)
     paginator = Paginator(postulaciones_list, 5)
     page_number = request.GET.get("page")
     postulaciones = paginator.get_page(page_number)
 
-    return render(request, "convocatorias/postulaciones_asignadas.html", {"postulaciones": postulaciones})
+    return render(
+        request,
+        "convocatorias/postulaciones_asignadas.html",
+        {"postulaciones": postulaciones}
+    )
+
+
+
+
