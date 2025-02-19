@@ -2,13 +2,15 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="text-center mb-4">Verificación de Postulación</h2>
+    <h2 class="text-center mb-4">🔍 Verificación de Postulación</h2>
 
     <!-- 🔹 Información principal -->
     <div class="card shadow-sm p-4 mb-4">
         <h3 class="text-primary">{{ postulacion.titulo }}</h3>
-        <p><strong>Correo del Productor:</strong> <a href="mailto:{{ postulacion.correo_productor }}">{{ postulacion.correo_productor }}</a></p>
-        <p><strong>Estado Actual:</strong> 
+        <p><strong>📧 Correo del Productor:</strong> 
+            <a href="mailto:{{ postulacion.correo_productor }}">{{ postulacion.correo_productor }}</a>
+        </p>
+        <p><strong>📌 Estado Actual:</strong> 
             <span class="badge 
                 {% if postulacion.estado == 'evaluacion' %} bg-warning text-dark 
                 {% elif postulacion.estado == 'rechazado' %} bg-danger
@@ -21,10 +23,10 @@
     </div>
 
     <!-- 🔹 Sección de Detalles -->
-    <div class="row">
+    <div class="row mb-3"> <!-- Añadí un margen inferior a la fila -->
         <div class="col-md-6">
-            <div class="card shadow-sm p-4 mb-4">
-                <h4>Detalles del Cortometraje</h4>
+            <div class="card shadow-sm p-4 mb-3 h-100"> <!-- Ajuste de margen inferior -->
+                <h4><i class="bi bi-film"></i> Detalles del Cortometraje</h4>
                 <ul class="list-group">
                     <li class="list-group-item"><strong>Año de Producción:</strong> {{ postulacion.anio_produccion }}</li>
                     <li class="list-group-item"><strong>Duración:</strong> {{ postulacion.duracion }}</li>
@@ -37,17 +39,11 @@
                     <li class="list-group-item"><strong>Locaciones del Rodaje:</strong> {{ postulacion.locaciones_rodaje }}</li>
                 </ul>
             </div>
-            <div class="col-md-6">
-                <div class="card shadow-sm p-4 mb-4">
-                    <h4>Sinopsis</h4>
-                    <p>{{ postulacion.sinopsis_corta }}</p>
-                </div>
-            </div>
         </div>
-
+    
         <div class="col-md-6">
-            <div class="card shadow-sm p-4 mb-4">
-                <h4>Historial y Exhibición</h4>
+            <div class="card shadow-sm p-4 mb-3 h-100"> <!-- Ajuste de margen inferior -->
+                <h4><i class="bi bi-camera-reels"></i> Historial y Exhibición</h4>
                 <ul class="list-group">
                     <li class="list-group-item"><strong>¿Beneficiario del FDC?:</strong> {{ postulacion.get_beneficiario_fdc_display }}</li>
                     {% if postulacion.beneficiario_fdc == "si" %}
@@ -63,34 +59,71 @@
         </div>
     </div>
 
-    <!-- 🔹 Resolución y Autorizaciones -->
-    <div class="card shadow-sm p-4 mb-4">
-        <h4>Resolución y Autorizaciones</h4>
-        <ul class="list-group">
-            <li class="list-group-item"><strong>Número de Resolución CPN:</strong> {{ postulacion.resolucion_cpn }}</li>
-            <li class="list-group-item"><strong>Fecha de Resolución CPN:</strong> {{ postulacion.fecha_resolucion_cpn }}</li>
-        </ul>
+    <!-- 📖 Sinopsis -->
+    <div class="card shadow-sm p-4 mb-3">
+        <h5>📖 Sinopsis</h5>
+        <p class="text-justify">{{ postulacion.sinopsis_corta }}</p>
     </div>
 
-    <!-- 🔹 Enlaces del Corto -->
-    <div class="card shadow-sm p-4 mb-4">
-        <h4>Enlaces del Corto</h4>
-        {% if postulacion.enlace_vimeo %}
-            <p><strong>Enlace Vimeo:</strong> <a href="{{ postulacion.enlace_vimeo }}" class="btn btn-primary btn-sm" target="_blank">Ver Corto</a></p>
-        {% endif %}
-        {% if postulacion.contrasena_vimeo %}
-            <p><strong>Contraseña Vimeo:</strong> <code>{{ postulacion.contrasena_vimeo }}</code></p>
-        {% endif %}
-    </div>
+    <!-- 📑 Resolución y Autorizaciones + 🎥 Enlaces del Corto -->
+    <div class="row mb-4"> <!-- 🔹 Añadí "mb-4" aquí para dar espacio con Documentos Adjuntos -->
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4 h-100">
+                <h5><i class="bi bi-file-earmark-text"></i> Resolución y Autorizaciones</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <i class="bi bi-folder-fill text-warning"></i>
+                        <strong>Número de Resolución CPN:</strong> {{ postulacion.resolucion_cpn }}
+                    </li>
+                    <li class="list-group-item">
+                        <i class="bi bi-calendar-check text-primary"></i>
+                        <strong>Fecha de Resolución CPN:</strong> {{ postulacion.fecha_resolucion_cpn }}
+                    </li>
+                </ul>
+            </div>
+        </div>
 
-    <!-- 🔹 Documentos Adjuntos -->
+        <!-- 🎥 Enlaces del Corto -->
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4 h-100">
+                <h5><i class="bi bi-link-45deg"></i> Enlaces del Corto</h5>
+                <div>
+                    {% if postulacion.enlace_vimeo %}
+                        <p>
+                            <i class="bi bi-play-circle-fill text-primary"></i> 
+                            <strong>Ver Corto:</strong> 
+                            <a href="{{ postulacion.enlace_vimeo }}" 
+                                class="fw-bold text-primary text-decoration-underline" 
+                                target="_blank">
+                                {{ postulacion.enlace_vimeo }}
+                            </a>
+                        </p>
+                    {% else %}
+                        <p class="text-muted"><i class="bi bi-exclamation-circle"></i> No hay enlace disponible.</p>
+                    {% endif %}
+
+                    {% if postulacion.contrasena_vimeo %}
+                        <p class="mt-2">
+                            <i class="bi bi-lock-fill text-warning"></i> 
+                            <strong>Contraseña:</strong> 
+                            <span class="fw-bold text-danger">{{ postulacion.contrasena_vimeo }}</span>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+</div> <!-- 🔹 La "mb-4" en la fila asegurará la separación con Documentos Adjuntos -->
+
+
+
+    <!-- 📄 Documentos Adjuntos -->
     <div class="card shadow-sm p-4 mb-4">
-        <h4>Documentos Adjuntos</h4>
-        <div class="row row-cols-1 row-cols-md-2 g-3">
+        <h4><i class="bi bi-folder2-open"></i> Documentos Adjuntos</h4>
+        <div class="row row-cols-1 row-cols-md-3 g-3">
             {% if postulacion.certificacion_fdc %}
             <div class="col">
-                <div class="card border-0 shadow-sm p-2">
-                    <a href="{{ postulacion.certificacion_fdc.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                <div class="card border-0 shadow-sm p-2 text-center">
+                    <a href="{{ postulacion.certificacion_fdc.url }}" class="btn btn-outline-primary w-100" target="_blank">
                         📄 Certificación FDC
                     </a>
                 </div>
@@ -98,8 +131,8 @@
             {% endif %}
             {% if postulacion.certificacion_cpn %}
             <div class="col">
-                <div class="card border-0 shadow-sm p-2">
-                    <a href="{{ postulacion.certificacion_cpn.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                <div class="card border-0 shadow-sm p-2 text-center">
+                    <a href="{{ postulacion.certificacion_cpn.url }}" class="btn btn-outline-primary w-100" target="_blank">
                         📜 Certificación CPN
                     </a>
                 </div>
@@ -107,8 +140,8 @@
             {% endif %}
             {% if postulacion.acta_clasificacion %}
             <div class="col">
-                <div class="card border-0 shadow-sm p-2">
-                    <a href="{{ postulacion.acta_clasificacion.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                <div class="card border-0 shadow-sm p-2 text-center">
+                    <a href="{{ postulacion.acta_clasificacion.url }}" class="btn btn-outline-primary w-100" target="_blank">
                         🏛️ Acta de Clasificación
                     </a>
                 </div>
@@ -116,8 +149,8 @@
             {% endif %}
             {% if postulacion.autorizacion_uso %}
             <div class="col">
-                <div class="card border-0 shadow-sm p-2">
-                    <a href="{{ postulacion.autorizacion_uso.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                <div class="card border-0 shadow-sm p-2 text-center">
+                    <a href="{{ postulacion.autorizacion_uso.url }}" class="btn btn-outline-primary w-100" target="_blank">
                         🔏 Autorización de Uso
                     </a>
                 </div>
@@ -125,31 +158,34 @@
             {% endif %}
             {% if postulacion.certificacion_cumplimiento %}
             <div class="col">
-                <div class="card border-0 shadow-sm p-2">
-                    <a href="{{ postulacion.certificacion_cumplimiento.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                <div class="card border-0 shadow-sm p-2 text-center">
+                    <a href="{{ postulacion.certificacion_cumplimiento.url }}" class="btn btn-outline-primary w-100" target="_blank">
                         ✅ Certificación de Cumplimiento
                     </a>
                 </div>
             </div>
             {% endif %}
         </div>
-    </div>
+</div>
+
     
 
-    <!-- 🔹 Comentario del Administrador -->
-    <div class="card shadow-sm p-4 mb-4">
-        <h4>Comentario del Administrador</h4>
+    <!-- 📝 Comentario del Administrador -->
+    <div class="card shadow-sm p-4 mb-3">
+        <h5>📝 Comentario del Administrador</h5>
         <form method="POST">
             {% csrf_token %}
-            <textarea name="comentario_admin" class="form-control" rows="4" placeholder="Motivo del rechazo o comentario..."></textarea>
-            <br>
+            <textarea name="comentario_admin" class="form-control mb-3" rows="3" placeholder="Motivo del rechazo o comentario..."></textarea>
             <div class="d-flex gap-2">
-                <button type="submit" name="aprobar" class="btn btn-success">✅ Aprobar y Enviar a Evaluación</button>
-                <button type="submit" name="rechazar" class="btn btn-danger">❌ Rechazar Postulación</button>
+                <button type="submit" name="aprobar" class="btn btn-success w-50">✅ Aprobar y Enviar</button>
+                <button type="submit" name="rechazar" class="btn btn-danger w-50">❌ Rechazar</button>
             </div>
         </form>
     </div>
 
-    <a href="{% url 'lista_postulaciones_admin' %}" class="btn btn-dark">🔙 Volver</a>
+    <!-- 🔙 Botón Volver -->
+    <div class="text-center mt-3">
+        <a href="{% url 'lista_postulaciones_admin' %}" class="btn btn-dark">🔙 Volver</a>
+    </div>
 </div>
 {% endblock %}

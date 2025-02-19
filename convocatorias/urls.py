@@ -17,4 +17,6 @@ urlpatterns = [
     path('asignar-evaluadores/<int:postulacion_id>/', asignar_evaluadores, name='asignar_evaluadores'),  # ✅ Nueva URL
     path('evaluar-postulacion/<int:postulacion_id>/', evaluar_postulacion, name='evaluar_postulacion'),
     path('postulaciones-asignadas/', postulaciones_asignadas, name='postulaciones_asignadas'),
+    path('lista-postulaciones/', lista_postulaciones_admin, name='lista_postulaciones_admin'),
+
 ]

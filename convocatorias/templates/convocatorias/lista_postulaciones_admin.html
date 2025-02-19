@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-3"> <!-- 🔹 Reduje la distancia con mt-3 en lugar de mt-4 -->
+<div class="container mt-3">
     <h2 class="text-center"><i class="bi bi-list-check"></i> Lista de Postulaciones</h2>
 
-    <div class="table-responsive mt-3"> <!-- 🔹 También reduje el margen -->
+    <div class="table-responsive mt-3">
         <table class="table table-hover align-middle text-center shadow-sm">
             <thead class="table-dark">
                 <tr>
@@ -43,5 +43,32 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Paginación -->
+    <nav>
+        <ul class="pagination justify-content-center mt-4">
+            {% if postulaciones.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">« Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ postulaciones.previous_page_number }}">‹ Anterior</a>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">Página {{ postulaciones.number }} de {{ postulaciones.paginator.num_pages }}</span>
+            </li>
+
+            {% if postulaciones.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ postulaciones.next_page_number }}">Siguiente ›</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ postulaciones.paginator.num_pages }}">Última »</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 </div>
 {% endblock %}

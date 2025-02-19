@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.core.paginator import Paginator
 from .models import Postulacion, Evaluador, Evaluacion, PostulacionEvaluadores
 from .forms import PostulacionForm
 from .forms import EvaluacionForm
@@ -247,3 +248,12 @@ def custom_login(request):
         
     print("❌ Redirigiendo a login (Acceso por GET)")  # 🔹 Debug
     return render(request, "convocatorias/login.html")
+
+def lista_postulaciones_admin(request):
+    postulaciones_list = Postulacion.objects.all().order_by('-id')  # Ordena por ID descendente
+    paginator = Paginator(postulaciones_list, 5)  # Muestra 5 postulaciones por página
+
+    page_number = request.GET.get('page')
+    postulaciones = paginator.get_page(page_number)
+
+    return render(request, 'convocatorias/lista_postulaciones_admin.html', {'postulaciones': postulaciones})
