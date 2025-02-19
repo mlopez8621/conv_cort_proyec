@@ -45,5 +45,31 @@
             </tbody>
         </table>
     </div>
+    <!-- 🔹 Paginación -->
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center mt-3">
+            {% if postulaciones.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">⏮️ Primero</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ postulaciones.previous_page_number }}">⬅️ Anterior</a>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">Página {{ postulaciones.number }} de {{ postulaciones.paginator.num_pages }}</span>
+            </li>
+
+            {% if postulaciones.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ postulaciones.next_page_number }}">Siguiente ➡️</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ postulaciones.paginator.num_pages }}">Último ⏭️</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 </div>
 {% endblock %}
