@@ -21,7 +21,7 @@
                 <select name="evaluadores" id="evaluadores" multiple class="form-select border-primary">
                     <option disabled>-- Selecciona uno o más evaluadores --</option>
                     {% for evaluador in evaluadores %}
-                    <option value="{{ evaluador.id }}">{{ evaluador.nombre }}</option>
+                    <option value="{{ evaluador.id }}">{{ evaluador.usuario.first_name }} {{ evaluador.usuario.last_name }} ({{ evaluador.usuario.username }})</option>
                     {% endfor %}
                 </select>
                 <small class="text-muted">

@@ -1,0 +1,15 @@
+<form method="POST">
+    {% csrf_token %}
+    <label>Mes:</label>
+    <select name="mes" class="form-control" required>
+        {% for num, nombre in meses %}
+            <option value="{{ num }}">{{ nombre }}</option>
+        {% endfor %}
+    </select>
+    
+
+    <label>Año:</label>
+    <input type="number" name="anio" value="{{ now.year }}" class="form-control" required>
+
+    <button type="submit" class="btn btn-primary mt-3">Generar Acta</button>
+</form>

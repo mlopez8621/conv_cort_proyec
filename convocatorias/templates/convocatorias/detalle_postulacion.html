@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h3>🔎 Detalle de Postulación - {{ postulacion.titulo }}</h3>
+    <p><strong>Postulado por:</strong> {{ postulacion.nombre_productor }}</p>
+
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Evaluador</th>
+                <th>¿Evaluó?</th>
+                <th>Recomendación</th>
+                <th>Comentario</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in evaluadores_estado %}
+            <tr>
+                <td>{{ item.evaluador.usuario.get_full_name }}</td>
+                {% if item.evaluacion %}
+                    <td class="text-success">✅ Sí</td>
+                    <td>{{ item.evaluacion.get_recomendacion_display }}</td>
+                    <td>{{ item.evaluacion.comentario }}</td>
+                {% else %}
+                    <td class="text-danger">❌ No</td>
+                    <td colspan="2" class="text-muted">No ha enviado evaluación</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'lista_postulaciones_admin' %}" class="btn btn-secondary">← Volver</a>
+</div>
+{% endblock %}

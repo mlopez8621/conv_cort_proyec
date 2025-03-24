@@ -1,18 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User  # Usamos el modelo predeterminado de Django
 from django.core.validators import RegexValidator
+import datetime
+
 
 class Evaluador(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE)  # Relación con la cuenta de usuario
-    nombre = models.CharField(max_length=255)
-    correo = models.EmailField(unique=True)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name="evaluador")  # Relación con la cuenta de usuario
 
     class Meta:
         verbose_name = "Evaluador"
         verbose_name_plural = "Evaluadores"
 
     def __str__(self):
-        return self.usuario.username
+        return f"{self.usuario.first_name} {self.usuario.last_name}"  # Devuelve el nombre completo del usuario
 
 class Postulacion(models.Model):
     ESTADO_CHOICES = [
@@ -35,7 +35,6 @@ class Postulacion(models.Model):
     PLATAFORMAS_CHOICES = [
         ('si', 'Sí'),
         ('no', 'No'),
-        ('otro', 'Otro'),
     ]
 
     POSTULADO_ANTES_CHOICES = [
@@ -73,9 +72,11 @@ class Postulacion(models.Model):
 
     # Relación N:N (Una postulación puede tener varios evaluadores y viceversa)
     evaluadores = models.ManyToManyField(Evaluador, through="PostulacionEvaluadores", related_name="postulaciones")
+    # En el modelo Postulacion
+    acta = models.ForeignKey('ActaEvaluacion', on_delete=models.SET_NULL, null=True, blank=True, related_name='postulaciones')
+
 
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)  # Relación con el usuario que postula
-    correo = models.EmailField(max_length=255)
     titulo = models.CharField(max_length=255)
     anio_produccion = models.IntegerField(verbose_name="Año de producción")
     duracion = models.TimeField(verbose_name="Duración (Min)", help_text="Formato HH:MM")
@@ -166,4 +167,18 @@ class PostulacionEvaluadores(models.Model):
         verbose_name_plural = "Asignaciones Curador"    
 
     def __str__(self):
-        return f"{self.evaluador.nombre} - {self.postulacion.titulo}"
+        return f"{self.evaluador.usuario.first_name} - {self.postulacion.titulo}"
+    
+class ActaEvaluacion(models.Model):
+    mes = models.PositiveIntegerField(choices=[(i, datetime.date(1900, i, 1).strftime('%B')) for i in range(1, 13)])
+    anio = models.PositiveIntegerField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    creada_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    estado = models.CharField(max_length=50, choices=[
+        ('en_proceso', 'En proceso'),
+        ('acta_aprobada', 'Acta aprobada lista para firmar'),
+        ('firmada_jefe_area', 'Firmada por jefe de área')
+    ], default='en_proceso')
+
+    def __str__(self):
+        return f"Acta {self.mes}/{self.anio}"

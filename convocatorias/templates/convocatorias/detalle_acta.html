@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="bi bi-file-earmark-text"></i> Detalle del Acta - Acta {{ acta.id }}/{{ acta.anio }}</h2>
+
+    <!-- Datos del acta -->
+    <div class="card p-3 mb-4">
+        <p><strong><i class="bi bi-calendar-event"></i> Mes:</strong> {{ acta.get_mes_display }}</p>
+        <p><strong><i class="bi bi-calendar"></i> Año:</strong> {{ acta.anio }}</p>
+        <p><strong><i class="bi bi-person-fill"></i> Creada por:</strong> {{ acta.creada_por.get_full_name }}</p>
+    </div>
+
+    <!-- Postulaciones Evaluadas -->
+    <h4 class="mt-4 mb-3"><i class="bi bi-check2-square"></i> Postulaciones </h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Postulado por</th>
+                <th>Recomendaciones</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in resumen_postulaciones %}
+            <tr>
+                <td>{{ item.postulacion.id }}</td>
+                <td>{{ item.postulacion.titulo }}</td>
+                <td>{{ item.postulacion.nombre_productor }}</td>
+                <td>
+                    <span class="badge bg-success">✅ Sí: {{ item.conteo.si }}</span>
+                    <span class="badge bg-danger">❌ No: {{ item.conteo.no }}</span>
+                    <span class="badge bg-warning text-dark">⚠️ Discusión: {{ item.conteo.discusion }}</span>
+                </td>
+                <td>
+                    {% if item.estado_aprobacion == "sin_evaluadores" %}
+                      <span class="badge bg-secondary">⚠️ Sin evaluadores asignados</span>
+                    {% elif item.estado_aprobacion == "faltan" %}
+                      <span class="badge bg-warning text-dark">⏳ Faltan evaluaciones ({{ item.conteo.faltan }})</span>
+                    {% elif item.estado_aprobacion == "aprobada" %}
+                      <span class="badge bg-success">✅ Aprobado</span>
+                    {% else %}
+                      <span class="badge bg-danger">❌ No Aprobado</span>
+                    {% endif %}
+                  </td>
+                <td>
+                    <a href="{% url 'revisar_evaluaciones' item.postulacion.id %}" class="btn btn-secondary btn-sm">🔍 Revisar Evaluaciones</a>
+                    <a href="{% url 'quitar_postulacion_acta' acta.id item.postulacion.id %}" class="btn btn-danger btn-sm">🗑 Quitar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Sección para agregar nuevas postulaciones -->
+    <hr>
+    <h4 class="mt-4"><i class="bi bi-plus-circle"></i> Agregar Postulaciones</h4>
+    <p class="text-muted">Estas postulaciones aún no están asociadas a ningún acta.</p>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for postulacion in postulaciones_disponibles %}
+            <tr>
+                <td>{{ postulacion.id }}</td>
+                <td>{{ postulacion.titulo }}</td>
+                <td>
+                    <a href="{% url 'agregar_postulacion_acta' acta.id postulacion.id %}" class="btn btn-success btn-sm">➕ Agregar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-muted text-center">No hay postulaciones disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -14,12 +14,14 @@
     <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
         <h2 class="text-center mb-4">🔐 Iniciar Sesión</h2>
 
-        {% if form.errors %}
-        <div class="alert alert-danger text-center">
-            ❌ Usuario o contraseña incorrectos.
-        </div>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-danger text-center">
+                {{ message }}
+            </div>
+            {% endfor %}
         {% endif %}
-
+        
         <form method="POST" action="{% url 'custom_login' %}">
             {% csrf_token %}
             

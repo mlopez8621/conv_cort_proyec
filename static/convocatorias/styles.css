@@ -73,11 +73,25 @@ body {
 
 /* Asegurar que la tabla no quede centrada en la pantalla */
 .container {
-    min-height: calc(100vh - 150px); /* Ajuste para evitar mucho espacio vacío */
+    min-height: auto; /* Ajuste para evitar mucho espacio vacío */
 }
 
 /* Hacer que la tabla inicie más arriba */
 .table-responsive {
     margin-top: 20px !important; /* Ajusta la distancia superior */
+}
+
+.comentario-completo {
+    max-width: 400px;
+    white-space: normal;  /* Permite salto de línea */
+    word-break: break-word;  /* Rompe palabras largas */
+    text-align: justify;
+}
+
+/* En pantallas pequeñas: ajusta ancho */
+@media (max-width: 768px) {
+    .comentario-completo {
+        max-width: 100%;
+    }
 }
 

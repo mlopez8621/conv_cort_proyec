@@ -2,7 +2,14 @@
 
 {% block content %}
 <div class="container mt-3">
-    <h2 class="text-center"><i class="bi bi-list-check"></i> Lista de Postulaciones</h2>
+    <div class="d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-list-check"></i> Lista de Postulaciones</h2>
+
+        <!-- 🔹 Botón para mostrar el modal -->
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalGenerarActa">
+            📄 Generar Acta
+        </button>
+    </div>
 
     <div class="table-responsive mt-3">
         <table class="table table-hover align-middle text-center shadow-sm">
@@ -30,8 +37,14 @@
                         </span>
                     </td>
                     <td>
+                        <a href="{% url 'detalle_postulacion' postulacion.id %}" class="btn btn-info btn-sm">
+                            👁 Ver Detalle
+                        </a>
                         <a href="{% url 'verificar_postulacion' postulacion.id %}" class="btn btn-primary btn-sm">
                             <i class="bi bi-eye"></i> Verificar
+                        </a>
+                        <a href="{% url 'revisar_evaluaciones' postulacion.id %}" class="btn btn-warning btn-sm">
+                            Revisar Evaluaciones
                         </a>
                     </td>
                 </tr>
@@ -71,4 +84,36 @@
         </ul>
     </nav>
 </div>
+
+<!-- Modal para Generar Acta -->
+<div class="modal fade" id="modalGenerarActa" tabindex="-1" aria-labelledby="modalGenerarActaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="POST" action="{% url 'generar_acta' %}" class="modal-content">
+          {% csrf_token %}
+          <div class="modal-header">
+              <h5 class="modal-title" id="modalGenerarActaLabel">Generar Acta</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+              <div class="mb-3">
+                  <label for="mes" class="form-label">Mes:</label>
+                  <select name="mes" id="mes" class="form-control" required>
+                    {% for numero, nombre in meses %}
+                        <option value="{{ numero }}">{{ nombre }}</option>
+                    {% endfor %}
+                  </select>
+              </div>
+              <div class="mb-3">
+                  <label for="anio" class="form-label">Año:</label>
+                  <input type="number" name="anio" id="anio" class="form-control" min="2000" max="2100" required>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-success">Crear Acta</button>
+          </div>
+      </form>
+    </div>
+  </div>
+  
 {% endblock %}

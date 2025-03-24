@@ -176,13 +176,20 @@
             <div class="mb-3">
                 <label for="id_comentario" class="form-label"><strong>Comentario:</strong></label>
                 {{ form.comentario }}
+                {% if form.comentario.errors %}
+                    <div class="text-danger">
+                        {{ form.comentario.errors.0 }}
+                    </div>
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="id_recomendacion" class="form-label"><strong>Recomendación:</strong></label>
                 {{ form.recomendacion }}
             </div>
             <div class="d-flex justify-content-between">
-                <a href="{% url 'postulaciones_asignadas' %}" class="btn btn-dark">🔙 Volver</a>
+                <a href="{% url 'postulaciones_asignadas' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Volver
+                </a>
                 <button type="submit" class="btn btn-success">💾 Guardar Evaluación</button>
             </div>
         </form>

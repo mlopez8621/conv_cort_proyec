@@ -5,7 +5,7 @@ from .models import Evaluacion
 class PostulacionForm(forms.ModelForm):
     class Meta:
         model = Postulacion
-        fields = ['correo','titulo', 'anio_produccion','duracion','genero_cortrometraje','subgenero_cortrometraje',
+        fields = ['titulo', 'anio_produccion','duracion','genero_cortrometraje','subgenero_cortrometraje',
                   'otro_subgenero_cortrometraje','formato_grabacion','productor_emp_produc',
                   'nom_director','sinopsis_corta','locaciones_rodaje','beneficiario_fdc', 'anio_fdc',
                   'certificacion_fdc','exhibicion_salas','plataformas_exhibicion', 'si_plataforma','resolucion_cpn',
@@ -15,7 +15,6 @@ class PostulacionForm(forms.ModelForm):
                  ]  # Excluir 'usuario' y 'estado'
 
         widgets = {
-            'correo': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el correo','required': 'required'}),
             'titulo': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_titulo','placeholder': 'Ingrese el titulo','required': 'required'}),
             'anio_produccion': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese año de produccion','required': 'required'}),
             'duracion': forms.TimeInput(attrs={'class': 'form-control', 'id': 'id_duracion','placeholder': 'Ingrese la doracion del corto HH:MM','required': 'required'}, format='%H:%M'),
@@ -25,8 +24,8 @@ class PostulacionForm(forms.ModelForm):
             'formato_grabacion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese formato de grabacion','required': 'required'}),
             'productor_emp_produc': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese productor o empresa productora','required': 'required'}),
             'nom_director': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese nombre del director','required': 'required'}),
-            'sinopsis_corta': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese storyline / sinopsis corta','required': 'required'}),
-            'locaciones_rodaje': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese locaciones de rodaje','required': 'required'}),
+            'sinopsis_corta': forms.Textarea(attrs={'class': 'form-control','placeholder': 'Ingrese storyline / sinopsis corta', 'required': 'required'}),
+            'locaciones_rodaje': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Ingrese locaciones de rodaje','required': 'required'}),
             'beneficiario_fdc': forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'id_beneficiario_fdc','required': 'required'}),
             'anio_fdc': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_anio_fdc'}),
             'certificacion_fdc': forms.ClearableFileInput(attrs={'class': 'form-control', 'id': 'id_certificacion_fdc'}),
@@ -56,7 +55,17 @@ class EvaluacionForm(forms.ModelForm):
         model = Evaluacion
         fields = ["comentario", "recomendacion"]
         widgets = {
-            "comentario": forms.Textarea(attrs={"class": "form-control", "placeholder": "Escribe tu evaluación aquí...", "rows": 4}),
+            "comentario": forms.Textarea(attrs={
+                "class": "form-control",
+                "placeholder": "Escribe tu evaluación aquí...",
+                "rows": 4
+            }),
             "recomendacion": forms.Select(attrs={"class": "form-control"}),
         }
+
+    def clean_comentario(self):
+        comentario = self.cleaned_data.get("comentario")
+        if comentario and len(comentario.strip()) < 50:
+            raise forms.ValidationError("El comentario debe tener al menos 50 caracteres.")
+        return comentario
 

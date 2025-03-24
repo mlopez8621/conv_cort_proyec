@@ -5,10 +5,25 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .models import Postulacion, Evaluador, Evaluacion, PostulacionEvaluadores
+from .models import Postulacion, Evaluador, Evaluacion, PostulacionEvaluadores, ActaEvaluacion
 from .forms import PostulacionForm
 from .forms import EvaluacionForm
 from django.http import HttpResponseRedirect
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+import calendar
+from datetime import datetime
+import locale
+
+# Establecer el locale para obtener nombres de meses en español
+try:
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux/Mac
+except locale.Error:
+    try:
+        locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+    except locale.Error:
+        pass  # En caso de que no funcione, puedes manejarlo o mostrar meses manualmente
 
 def postulacion_publica(request):
     print("🔹 Entrando a postulacion_publica")  # 🔥 Debug
@@ -121,15 +136,15 @@ def asignar_evaluadores(request, postulacion_id):
         for evaluador_id in evaluadores_ids:
             try:
                 evaluador = Evaluador.objects.get(id=evaluador_id)
-                print(f"✅ Evaluador encontrado: {evaluador.nombre} (ID: {evaluador.id})")  # 🔍 Debug
+                print(f"✅ Evaluador encontrado: {evaluador.usuario.first_name} {evaluador.usuario.last_name} (ID: {evaluador.id})")  # 🔍 Debug
 
                 # Verificar si la asignación ya existe
                 if PostulacionEvaluadores.objects.filter(postulacion=postulacion, evaluador=evaluador).exists():
-                    print(f"⚠️ Asignación ya existe para {evaluador.nombre}")
+                    print(f"⚠️ Asignación ya existe para {evaluador.usuario.first_name} {evaluador.usuario.last_name}")
                     ya_asignados += 1
                 else:
                     PostulacionEvaluadores.objects.create(postulacion=postulacion, evaluador=evaluador)
-                    print(f"✅ Asignación creada: {evaluador.nombre} → {postulacion.titulo}")  # 🔍 Debug
+                    print(f"✅ Asignación creada: {evaluador.usuario.first_name} {evaluador.usuario.last_name} → {postulacion.titulo}")  # 🔍 Debug
                     asignados += 1
 
             except Evaluador.DoesNotExist:
@@ -180,6 +195,8 @@ def evaluar_postulacion(request, postulacion_id):
             return render(request, "convocatorias/evaluacion_exitosa.html", {
                 "postulacion": postulacion
             })  # ✅ Muestra la página de confirmación antes de redirigir
+        else:
+            messages.error(request, "El comentario debe tener al menos 50 caracteres.")  # 🔹 Mensaje de error
     else:
         form = EvaluacionForm(instance=evaluacion)
 
@@ -237,7 +254,7 @@ def custom_login(request):
         else:
             print("❌ Error: Usuario o contraseña incorrectos")  # 🔹 Debug
             messages.error(request, "Usuario o contraseña incorrectos.")
-            render(request, "convocatorias/login.html")  # Redirigir al login si falla
+            return render(request, "convocatorias/login.html")  # Redirigir al login si falla
         
     print("❌ Redirigiendo a login (Acceso por GET)")  # 🔹 Debug
     return render(request, "convocatorias/login.html")
@@ -254,7 +271,16 @@ def lista_postulaciones_admin(request):
     page_number = request.GET.get('page')
     postulaciones = paginator.get_page(page_number)
 
-    return render(request, 'convocatorias/lista_postulaciones_admin.html', {'postulaciones': postulaciones})
+    # Generar nombres de meses en español (ej: [(1, "Enero"), (2, "Febrero"), ...])
+    nombres_meses = [(i, datetime(1900, i, 1).strftime('%B').capitalize()) for i in range(1, 13)]
+
+    context = {
+        'postulaciones': postulaciones,
+        'meses': nombres_meses,
+        'now': datetime.now(),
+    }
+
+    return render(request, 'convocatorias/lista_postulaciones_admin.html', context)
 
 
 @login_required
@@ -275,7 +301,7 @@ def postulaciones_asignadas(request):
         id__in=PostulacionEvaluadores.objects.filter(evaluador=evaluador).values_list("postulacion_id", flat=True)
     )
 
-    print(f"✅ Postulaciones encontradas para el evaluador {evaluador.nombre}: {postulaciones_list}")  # 🔹 Debug
+    print(f"✅ Postulaciones encontradas para el evaluador {evaluador.usuario.first_name}: {postulaciones_list}")  # 🔹 Debug
 
     # Paginar resultados (5 postulaciones por página)
     paginator = Paginator(postulaciones_list, 5)
@@ -287,6 +313,220 @@ def postulaciones_asignadas(request):
         "convocatorias/postulaciones_asignadas.html",
         {"postulaciones": postulaciones}
     )
+
+@login_required
+@csrf_exempt
+def revisar_evaluaciones(request, postulacion_id):
+    postulacion = get_object_or_404(Postulacion, id=postulacion_id)
+    evaluaciones = Evaluacion.objects.filter(postulacion=postulacion)
+    asignaciones = PostulacionEvaluadores.objects.filter(postulacion=postulacion)
+
+    evaluaciones_dict = {
+        evaluacion.evaluador.id: evaluacion
+        for evaluacion in evaluaciones
+    }
+
+    acta = postulacion.acta  # Asegúrate de que exista esta relación
+
+    if request.method == "POST":
+        comentario_final = request.POST.get("comentario_final")
+
+        recomendaciones_si = evaluaciones.filter(recomendacion="si").count()
+        recomendaciones_no = evaluaciones.filter(recomendacion="no").count()
+
+        if recomendaciones_si > recomendaciones_no:
+            postulacion.estado = "aprobado"
+        else:
+            postulacion.estado = "rechazado"
+
+        postulacion.comentario_final = comentario_final
+        postulacion.save()
+
+        return redirect("detalle_acta", acta_id=acta.id)
+
+    return render(request, "convocatorias/revisar_evaluaciones.html", {
+        "postulacion": postulacion,
+        "evaluaciones_dict": evaluaciones_dict,
+        "asignaciones": asignaciones,
+        "acta": acta,  # 👈 Esto es lo que faltaba
+    })
+
+@login_required
+@csrf_exempt
+def actualizar_recomendacion(request, evaluacion_id):
+    if not request.user.is_staff:
+        return JsonResponse({"success": False, "error": "Acceso denegado."}, status=403)
+
+    if request.method == "POST":
+        data = json.loads(request.body)
+        nueva_recomendacion = data.get("recomendacion")
+
+        try:
+            evaluacion = Evaluacion.objects.get(id=evaluacion_id)
+            evaluacion.recomendacion = nueva_recomendacion
+            evaluacion.save()
+            return JsonResponse({"success": True})
+        except Evaluacion.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Evaluación no encontrada."}, status=404)
+
+    return JsonResponse({"success": False, "error": "Método no permitido."}, status=405)
+
+@login_required
+@csrf_exempt
+def notificar_evaluador(request, evaluacion_id):
+    if not request.user.is_staff:
+        return JsonResponse({"success": False, "error": "Acceso denegado."}, status=403)
+
+    if request.method == "POST":
+        try:
+            evaluacion = Evaluacion.objects.get(id=evaluacion_id)
+            evaluador = evaluacion.evaluador
+            email = evaluador.usuario.email  # Tomar el email desde la tabla User
+
+            send_mail(
+                subject="🔔 Ajuste requerido en tu evaluación",
+                message=f"Hola {evaluador.usuario.first_name},\n\n"
+                        f"Se ha cambiado la recomendación de tu evaluación. "
+                        f"Por favor revisa y ajusta tu comentario si es necesario.\n\n"
+                        f"Ingresar aquí: http://localhost:8000",
+                from_email="automatizacionprocesos@proimagenescolombia.com",
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
+            return JsonResponse({"success": True})
+        except Evaluacion.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Evaluación no encontrada."}, status=404)
+
+    return JsonResponse({"success": False, "error": "Método no permitido."}, status=405)
+
+def generar_acta(request):
+    if request.method == "POST":
+        mes = int(request.POST['mes'])
+        anio = int(request.POST['anio'])
+
+        # Verificar si ya existe un acta para ese mes y año
+        if ActaEvaluacion.objects.filter(mes=mes, anio=anio).exists():
+            messages.error(request, "⚠️ Ya existe un acta para ese periodo. No puedes crear una duplicada.")
+            return redirect('lista_postulaciones_admin')  # O la vista donde esté el modal
+
+        # Obtener postulaciones del periodo
+        postulaciones = Postulacion.objects.filter(
+            fecha_postulacion__month=mes,
+            fecha_postulacion__year=anio,
+            estado='evaluacion'
+        )
+
+        acta = ActaEvaluacion.objects.create(mes=mes, anio=anio, creada_por=request.user)
+        postulaciones.update(acta=acta)
+
+        messages.success(request, "✅ Acta creada exitosamente con postulaciones del periodo seleccionado.")
+        return redirect('detalle_acta', acta.id)
+
+    return redirect('lista_postulaciones_admin')
+
+from django.shortcuts import render, get_object_or_404
+from .models import ActaEvaluacion
+
+@login_required
+@user_passes_test(es_admin)
+def detalle_acta(request, acta_id):
+    acta = get_object_or_404(ActaEvaluacion, pk=acta_id)
+
+    postulaciones_asociadas = Postulacion.objects.filter(acta=acta)
+    postulaciones_disponibles = Postulacion.objects.filter(
+        acta__isnull=True,
+        fecha_postulacion__month=acta.mes,
+        fecha_postulacion__year=acta.anio,
+        estado='evaluacion'
+    )
+    resumen_postulaciones = []
+    for postulacion in postulaciones_asociadas:
+        evaluadores_asignados = postulacion.evaluadores.count()
+        evaluaciones = postulacion.evaluaciones.all()
+        total = evaluaciones.count()
+        faltan = evaluadores_asignados - total
+
+        si = evaluaciones.filter(recomendacion='si').count()
+        no = evaluaciones.filter(recomendacion='no').count()
+        discusion = evaluaciones.filter(recomendacion='discusion').count()
+
+        if evaluadores_asignados == 0:
+            estado = 'sin_evaluadores'
+        elif faltan > 0:
+            estado = 'faltan'
+        else:
+            estado = 'aprobada' if si >= ((total // 2) + 1) else 'no_aprobada'
+
+        resumen_postulaciones.append({
+            'postulacion': postulacion,
+            'evaluaciones': evaluaciones,
+            'conteo': {
+                'si': si,
+                'no': no,
+                'discusion': discusion,
+                'faltan': faltan  # 👈 lo enviamos al template
+            },
+            'estado_aprobacion': estado
+        })
+    
+    context = {
+        'acta': acta,
+        'resumen_postulaciones': resumen_postulaciones,
+        'postulaciones_disponibles': postulaciones_disponibles,
+
+    }   
+    return render(request, 'convocatorias/detalle_acta.html', context)
+
+@login_required
+@user_passes_test(es_admin)
+def lista_actas(request):
+    actas = ActaEvaluacion.objects.all().order_by('-anio', '-mes')
+    return render(request, 'convocatorias/lista_actas.html', {'actas': actas})
+
+@login_required
+@user_passes_test(es_admin)
+def agregar_postulacion_acta(request, acta_id, postulacion_id):
+    acta = get_object_or_404(ActaEvaluacion, pk=acta_id)
+    postulacion = get_object_or_404(Postulacion, pk=postulacion_id)
+    postulacion.acta = acta
+    postulacion.save()
+    messages.success(request, "✅ Postulación agregada al acta.")
+    return redirect('detalle_acta', acta_id=acta_id)
+
+@login_required
+@user_passes_test(es_admin)
+def quitar_postulacion_acta(request, acta_id, postulacion_id):
+    postulacion = get_object_or_404(Postulacion, pk=postulacion_id, acta_id=acta_id)
+    postulacion.acta = None
+    postulacion.save()
+    messages.success(request, "❌ Postulación removida del acta.")
+    return redirect('detalle_acta', acta_id=acta_id)
+
+@login_required
+@user_passes_test(es_admin)
+def detalle_postulacion(request, postulacion_id):
+    postulacion = get_object_or_404(Postulacion, id=postulacion_id)
+    asignaciones = postulacion.evaluadores.all()
+    evaluaciones = postulacion.evaluaciones.all()
+
+    evaluadores_estado = []
+    for asignado in asignaciones:
+        evaluacion = evaluaciones.filter(evaluador=asignado).first()
+        evaluadores_estado.append({
+            'evaluador': asignado,
+            'evaluacion': evaluacion
+        })
+
+    context = {
+        'postulacion': postulacion,
+        'evaluadores_estado': evaluadores_estado,
+    }
+    return render(request, 'convocatorias/detalle_postulacion.html', context)
+
+
+
+
 
 
 
