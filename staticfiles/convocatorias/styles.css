@@ -72,9 +72,9 @@ body {
 }
 
 /* Asegurar que la tabla no quede centrada en la pantalla */
-.container {
-    min-height: calc(100vh - 150px); /* Ajuste para evitar mucho espacio vacío */
-}
+/*.container {
+    min-height: calc(100vh - 150px);
+}*/
 
 /* Hacer que la tabla inicie más arriba */
 .table-responsive {
