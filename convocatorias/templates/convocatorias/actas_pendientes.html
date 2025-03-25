@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="bi bi-journal-check"></i> Actas Pendientes de Aprobación</h2>
+
+    {% if actas %}
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Mes</th>
+                    <th>Año</th>
+                    <th>Ver Acta Privada</th>
+                    <th>Aprobación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for acta in actas %}
+                    <tr>
+                        <td>{{ acta.id }}</td>
+                        <td>{{ acta.get_mes_display }}</td>
+                        <td>{{ acta.anio }}</td>
+                        <td>
+                            <a href="{{ acta.archivo_privado_pdf.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                🔒 Ver Acta
+                            </a>
+                        </td>
+                        <td>
+                            {% if acta.estado == "acta_aprobada" or acta.estado == "firmada_jefe_area" %}
+                                <span class="badge bg-success">✔️ Aprobada</span>
+                            {% elif acta.id in actas_aprobadas_ids %}
+                                <span class="badge bg-success">✔️ Ya aprobaste</span>
+                            {% else %}
+                                <form action="{% url 'aprobar_acta_evaluador' acta.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        ✅ Aprobar Acta
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            No tienes actas pendientes por aprobar.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

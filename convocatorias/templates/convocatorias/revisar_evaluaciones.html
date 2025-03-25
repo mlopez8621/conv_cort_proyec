@@ -6,65 +6,98 @@
     <h2 class="mb-4">🧐 Revisión de Evaluaciones - {{ postulacion.titulo }}</h2>
 
     <p><strong>🎬 Postulado por:</strong> {{ postulacion.nombre_productor }}</p>
-
-    <table class="table table-bordered mt-4">
-        <thead>
-            <tr>
-                <th>🧑 Evaluador</th>
-                <th>✅ ¿Evaluó?</th>
-                <th>📌 Recomendación</th>
-                <th>💬 Comentario</th>
-                <th>🔔 Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for asignacion in asignaciones %}
-                {% with evaluacion=evaluaciones_dict|get_item:asignacion.evaluador.id %}
-                <tr>
-                    <td>{{ asignacion.evaluador.usuario.get_full_name }}</td>
-                    <td>
-                        {% if evaluacion %}
-                            ✅ Sí
-                        {% else %}
-                            ❌ No
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if evaluacion %}
-                            {% if evaluacion.recomendacion == 'si' %}
-                                ✅ Sí
-                            {% elif evaluacion.recomendacion == 'no' %}
-                                ❌ No
-                            {% elif evaluacion.recomendacion == 'discusion' %}
-                                ⚠️ Discusión
-                            {% else %}
-                                <em>Sin recomendación</em>
-                            {% endif %}
-                        {% else %}
-                            <em>No ha enviado evaluación</em>
-                        {% endif %}
-                    </td>
-                    <td class="comentario-completo">
-                        {% if evaluacion and evaluacion.comentario %}
-                            {{ evaluacion.comentario }}
-                        {% else %}
-                            <em>No ha enviado evaluación</em>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if evaluacion %}
-                            <!-- Botón de notificación -->
-                            <a class="btn btn-warning btn-sm">🔔 Notificar Evaluador</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endwith %}
-            {% endfor %}
-            </tbody>
-    </table>
-
     <form method="post">
         {% csrf_token %}
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>🧑 Evaluador</th>
+                    <th>✅ ¿Evaluó?</th>
+                    <th>📌 Recomendación</th>
+                    <th>💬 Comentario</th>
+                    <th>🔔 Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asignacion in asignaciones %}
+                    {% with evaluacion=evaluaciones_dict|get_item:asignacion.evaluador.id %}
+                    <tr>
+                        <td>{{ asignacion.evaluador.usuario.get_full_name }}</td>
+                        <td>
+                            {% if evaluacion %}
+                                ✅ Sí
+                            {% else %}
+                                ❌ No
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if evaluacion %}
+                                {% if user.is_superuser %}
+                                    <select name="recomendacion_{{ evaluacion.id }}" class="form-select form-select-sm recomendacion-select" data-evaluacion-id="{{ evaluacion.id }}">
+                                        <option value="si" {% if evaluacion.recomendacion == "si" %}selected{% endif %}>✅ Sí</option>
+                                        <option value="no" {% if evaluacion.recomendacion == "no" %}selected{% endif %}>❌ No</option>
+                                        <option value="discusion" {% if evaluacion.recomendacion == "discusion" %}selected{% endif %}>⚠️ Discusión</option>
+                                    </select>
+                                {% else %}
+                                    {% if evaluacion.recomendacion == "si" %}
+                                        <span class="badge bg-success">✅ Sí</span>
+                                    {% elif evaluacion.recomendacion == "no" %}
+                                        <span class="badge bg-danger">❌ No</span>
+                                    {% elif evaluacion.recomendacion == "discusion" %}
+                                        <span class="badge bg-warning text-dark">⚠️ Discusión</span>
+                                    {% else %}
+                                        <em>Sin recomendación</em>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                <em>No ha enviado evaluación</em>
+                            {% endif %}
+                        </td>
+                        <td class="comentario-completo">
+                            {% if evaluacion and evaluacion.comentario %}
+                                {{ evaluacion.comentario }}
+                            {% else %}
+                                <em>No ha enviado evaluación</em>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if not evaluacion %}
+                                <!-- Botón habilitado si NO ha evaluado -->
+                                <button 
+                                    type="button" 
+                                    id="boton-recordar-asignacion-{{ asignacion.evaluador.id }}" 
+                                    class="btn btn-warning btn-sm mb-1 w-100">
+                                    <i class="bi bi-bell-fill"></i> Recordar Evaluación
+                                </button>
+                        
+                                <!-- Botón para cambio de comentario no aplica si no ha evaluado -->
+                                <button type="button" class="btn btn-info btn-sm w-100" disabled>
+                                    <i class="bi bi-pencil-square"></i> Solicitar Cambio de Comentario
+                                </button>
+                            {% else %}
+                                <!-- Botón deshabilitado si ya evaluó -->
+                                <button 
+                                    type="button" 
+                                    class="btn btn-warning btn-sm mb-1 w-100" 
+                                    disabled>
+                                    <i class="bi bi-bell-fill"></i> Ya Evaluó
+                                </button>
+                        
+                                <!-- Botón para solicitar cambio de comentario (se habilita vía JS) -->
+                                <button 
+                                    type="button" 
+                                    id="boton-comentario-{{ evaluacion.id }}" 
+                                    class="btn btn-info btn-sm w-100" 
+                                    disabled>
+                                    <i class="bi bi-pencil-square"></i> Solicitar Cambio de Comentario
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+                </tbody>
+        </table>
         <div class="form-group mt-4">
             <label for="comentario_final"><strong>📝 Comentario Final:</strong></label>
             <textarea name="comentario_final" id="comentario_final" class="form-control" rows="4">{{ postulacion.comentario_final }}</textarea>
@@ -72,8 +105,92 @@
 
         <div class="mt-3">
             <a href="{% url 'detalle_acta' acta.id %}" class="btn btn-secondary">← Volver al Detalle del Acta</a>
-            <button type="submit" class="btn btn-success float-end">✅ Aprobar/Rechazar Postulación</button>
+            <button type="submit" class="btn btn-success float-end">✅ Guardar</button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('select.recomendacion-select').forEach(select => {
+    select.addEventListener('change', function() {
+        const evaluacionId = this.dataset.evaluacionId;
+        const nuevaRecomendacion = this.value;
+        const botonComentario = document.querySelector(`#boton-comentario-${evaluacionId}`);
+
+        fetch("{% url 'actualizar_recomendacion' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: `evaluacion_id=${evaluacionId}&recomendacion=${nuevaRecomendacion}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "ok") {
+                botonComentario.disabled = false;
+                botonComentario.classList.remove("btn-secondary");
+                botonComentario.classList.add("btn-primary");
+            } else {
+                console.error("Error:", data.message);
+            }
+        });
+    });
+});
+
+document.querySelectorAll("[id^='boton-recordar-asignacion-']").forEach(boton => {
+    boton.addEventListener("click", function () {
+        const evaluadorId = this.id.split("-")[3];  // Extrae el ID del evaluador
+
+        // Asegúrate de tener este valor disponible en el contexto
+        const postulacionId = "{{ postulacion.id }}";  
+
+        fetch("{% url 'recordar_evaluacion' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+            },
+            body: `evaluador_id=${evaluadorId}&postulacion_id=${postulacionId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "ok") {
+                alert("📩 Recordatorio enviado correctamente al evaluador.");
+            } else {
+                alert("❌ Error al enviar el recordatorio.");
+            }
+        })
+        .catch(error => {
+            console.error("Error en la solicitud AJAX:", error);
+        });
+    });
+});
+
+document.querySelectorAll("[id^='boton-comentario-']").forEach(boton => {
+    boton.addEventListener("click", function () {
+        const evaluacionId = this.id.split("-")[2];
+
+        fetch("{% url 'solicitar_cambio_comentario' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: `evaluacion_id=${evaluacionId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "ok") {
+                alert("📬 Solicitud de cambio de comentario enviada.");
+            } else {
+                alert("❌ Error al enviar solicitud.");
+            }
+        });
+    });
+});
+
+</script>
 {% endblock %}

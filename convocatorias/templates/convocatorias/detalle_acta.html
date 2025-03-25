@@ -9,6 +9,34 @@
         <p><strong><i class="bi bi-calendar-event"></i> Mes:</strong> {{ acta.get_mes_display }}</p>
         <p><strong><i class="bi bi-calendar"></i> Año:</strong> {{ acta.anio }}</p>
         <p><strong><i class="bi bi-person-fill"></i> Creada por:</strong> {{ acta.creada_por.get_full_name }}</p>
+        <!-- Visualización del estado -->
+        <p><strong><i class="bi bi-clipboard-check"></i> Estado actual:</strong>
+            {% if acta.estado == 'en_evaluaciones' %}
+            <span class="badge bg-secondary">📝 En Evaluaciones</span>
+            {% elif acta.estado == 'en_aprobacion_acta' %}
+                <span class="badge bg-warning text-dark">🔍 En Aprobación de Acta</span>
+            {% elif acta.estado == 'acta_aprobada' %}
+                <span class="badge bg-success">✅ Aprobada (Lista para Firmar)</span>
+            {% elif acta.estado == 'firmada_jefe_area' %}
+                <span class="badge bg-primary">✒️ Firmada por Jefe de Área</span>
+            {% endif %}
+        </p>
+
+        <!-- Formulario para cambiar estado (solo admins) -->
+        {% if user.is_superuser %}
+        <form method="post" action="{% url 'actualizar_estado_acta' acta.id %}" class="d-flex align-items-center mt-2">
+            {% csrf_token %}
+            <select name="nuevo_estado" class="form-select me-2" style="max-width: 300px;">
+                <option value="en_evaluaciones" {% if acta.estado == 'en_evaluaciones' %}selected{% endif %}>📝 En Evaluaciones</option>
+                <option value="en_aprobacion_acta" {% if acta.estado == 'en_aprobacion_acta' %}selected{% endif %}>🔍 En Aprobación de Acta</option>
+                <option value="acta_aprobada" {% if acta.estado == 'acta_aprobada' %}selected{% endif %}>✅ Acta Aprobada (Lista para Firmar)</option>
+                <option value="firmada_jefe_area" {% if acta.estado == 'firmada_jefe_area' %}selected{% endif %}>✒️ Firmada por Jefe de Área</option>
+            </select>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-arrow-repeat"></i> Cambiar Estado
+            </button>
+        </form>
+        {% endif %}
     </div>
 
     <!-- Postulaciones Evaluadas -->
@@ -84,5 +112,71 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Botón para generar acta cuando todo está listo -->
+    {% if todas_completas and not acta.archivo_privado_pdf %}
+        <div class="text-center mt-4">
+            <a href="{% url 'generar_pdfs_acta' acta.id %}" class="btn btn-primary btn-lg">
+                📝 Generar Acta (PDF Privado y Público)
+            </a>
+        </div>
+    {% elif acta.archivo_privado_pdf %}
+        <div class="alert alert-success mt-4 text-center">
+            ✅ PDFs generados:
+            <a href="{{ acta.archivo_privado_pdf.url }}" class="btn btn-outline-dark btn-sm" target="_blank">🔒 Acta Privada</a>
+            <a href="{{ acta.archivo_publico_pdf.url }}" class="btn btn-outline-primary btn-sm" target="_blank">🌐 Acta Pública</a>
+        </div>
+    {% endif %}
+    <hr>
+    <h4 class="mt-5"><i class="bi bi-people-fill"></i> Aprobaciones de Evaluadores</h4>
+    <p class="text-muted">Este resumen muestra qué evaluadores han aprobado esta acta.</p>
+    <p class="fw-bold mb-2">
+        ✅ {{ total_aprobados }} de {{ total_evaluadores }} evaluadores han aprobado este acta.
+    </p>
+    
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-light">
+            <tr>
+                <th><i class="bi bi-person"></i> Evaluador</th>
+                <th><i class="bi bi-patch-check"></i> Estado de Aprobación</th>
+                <th><i class="bi bi-clock-history"></i> Fecha de Aprobación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for aprobacion in aprobaciones_acta %}
+                <tr>
+                    <td>
+                        {{ aprobacion.evaluador }}
+                    </td>
+                    <td>
+                        {% if aprobacion.aprobado %}
+                            <span class="badge bg-success">✅ Aprobado</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">⏳ Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if aprobacion.fecha_aprobacion %}
+                            {{ aprobacion.fecha_aprobacion|date:"d M Y - H:i" }}
+                        {% else %}
+                            <span class="text-muted">Sin aprobar</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center text-muted">No hay evaluadores asignados para esta acta.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if acta.estado == 'acta_aprobada' and user.is_superuser and total_aprobados == total_evaluadores %}
+        <div class="text-center mt-4">
+            <a href="{% url 'firmar_acta' acta.id %}" class="btn btn-dark btn-lg">
+                ✒️ Firmar Acta
+            </a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -171,4 +171,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Almacena sesiones en l
 SESSION_COOKIE_AGE = 3600  # Sesión dura 1 hora (en segundos)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expira al cerrar el navegador
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 

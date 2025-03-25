@@ -13,7 +13,15 @@ from .views import (
     lista_actas,
     agregar_postulacion_acta,
     quitar_postulacion_acta,
-    detalle_postulacion
+    detalle_postulacion,
+    actualizar_recomendacion,
+    recordar_evaluacion,
+    solicitar_cambio_comentario,
+    generar_pdfs_acta,
+    actas_pendientes_evaluador,
+    actualizar_estado_acta,
+    aprobar_acta_evaluador,
+    firmar_acta
 )
 
 urlpatterns = [
@@ -32,4 +40,12 @@ urlpatterns = [
     path('acta/<int:acta_id>/agregar/<int:postulacion_id>/', agregar_postulacion_acta, name='agregar_postulacion_acta'),
     path('acta/<int:acta_id>/quitar/<int:postulacion_id>/', quitar_postulacion_acta, name='quitar_postulacion_acta'),
     path('detalle-postulacion/<int:postulacion_id>/', detalle_postulacion, name='detalle_postulacion'),
+    path('actualizar-recomendacion/', actualizar_recomendacion, name='actualizar_recomendacion'),
+    path("recordar-evaluacion/", recordar_evaluacion, name="recordar_evaluacion"),
+    path("solicitar-cambio-comentario/", solicitar_cambio_comentario, name="solicitar_cambio_comentario"),
+    path('generar-pdfs-acta/<int:acta_id>/', generar_pdfs_acta, name='generar_pdfs_acta'),
+    path('actas-pendientes/', actas_pendientes_evaluador, name='actas_pendientes_evaluador'),
+    path('acta/<int:acta_id>/actualizar-estado/', actualizar_estado_acta, name='actualizar_estado_acta'),
+    path('actas/aprobar/<int:acta_id>/', aprobar_acta_evaluador, name='aprobar_acta_evaluador'),
+    path('actas/<int:acta_id>/firmar/', firmar_acta, name='firmar_acta'),
 ]

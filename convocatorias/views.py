@@ -5,16 +5,23 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .models import Postulacion, Evaluador, Evaluacion, PostulacionEvaluadores, ActaEvaluacion
+from .models import Postulacion, Evaluador, Evaluacion, PostulacionEvaluadores, ActaEvaluacion,AprobacionActa
 from .forms import PostulacionForm
 from .forms import EvaluacionForm
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 import json
 import calendar
 from datetime import datetime
+from django.utils import timezone
 import locale
+from .utils import render_to_pdf
+from django.core.files.base import ContentFile
+from django.template.loader import render_to_string
+from io import BytesIO
+from xhtml2pdf import pisa
 
 # Establecer el locale para obtener nombres de meses en español
 try:
@@ -326,30 +333,40 @@ def revisar_evaluaciones(request, postulacion_id):
         for evaluacion in evaluaciones
     }
 
-    acta = postulacion.acta  # Asegúrate de que exista esta relación
+    acta = postulacion.acta
 
     if request.method == "POST":
         comentario_final = request.POST.get("comentario_final")
 
-        recomendaciones_si = evaluaciones.filter(recomendacion="si").count()
-        recomendaciones_no = evaluaciones.filter(recomendacion="no").count()
+        # Verificar y actualizar recomendaciones
+        for evaluacion in evaluaciones:
+            nueva_recomendacion = request.POST.get(f"recomendacion_{evaluacion.id}")
+            if nueva_recomendacion and nueva_recomendacion != evaluacion.recomendacion:
+                evaluacion.recomendacion = nueva_recomendacion
+                evaluacion.save()
+                notificar_cambio_recomendacion(evaluacion)  
 
-        if recomendaciones_si > recomendaciones_no:
+        # Recalcular estado de aprobación
+        si = evaluaciones.filter(recomendacion="si").count()
+        no = evaluaciones.filter(recomendacion="no").count()
+
+        if si > no:
             postulacion.estado = "aprobado"
         else:
             postulacion.estado = "rechazado"
 
         postulacion.comentario_final = comentario_final
         postulacion.save()
-
+        messages.success(request, "✅ Recomendaciones y comentario final guardados correctamente.")
         return redirect("detalle_acta", acta_id=acta.id)
 
     return render(request, "convocatorias/revisar_evaluaciones.html", {
         "postulacion": postulacion,
         "evaluaciones_dict": evaluaciones_dict,
         "asignaciones": asignaciones,
-        "acta": acta,  # 👈 Esto es lo que faltaba
+        "acta": acta,
     })
+
 
 @login_required
 @csrf_exempt
@@ -440,6 +457,7 @@ def detalle_acta(request, acta_id):
         fecha_postulacion__year=acta.anio,
         estado='evaluacion'
     )
+
     resumen_postulaciones = []
     for postulacion in postulaciones_asociadas:
         evaluadores_asignados = postulacion.evaluadores.count()
@@ -465,17 +483,47 @@ def detalle_acta(request, acta_id):
                 'si': si,
                 'no': no,
                 'discusion': discusion,
-                'faltan': faltan  # 👈 lo enviamos al template
+                'faltan': faltan
             },
             'estado_aprobacion': estado
         })
-    
+
+    # 🔎 Identificar todos los evaluadores únicos
+    evaluadores_relacionados = {
+        ev.id: ev for postulacion in postulaciones_asociadas
+        for ev in postulacion.evaluadores.all()
+    }
+
+    # ✅ Consultar aprobaciones existentes
+    aprobaciones = AprobacionActa.objects.filter(acta=acta).select_related('evaluador')
+    aprobacion_dict = {a.evaluador.id: a for a in aprobaciones}
+
+    # 📋 Generar lista con info completa
+    evaluadores_aprobacion = []
+    for evaluador_id, evaluador in evaluadores_relacionados.items():
+        aprobacion = aprobacion_dict.get(evaluador_id)
+        evaluadores_aprobacion.append({
+            "evaluador": evaluador,
+            "aprobado": aprobacion.aprobado if aprobacion else False,
+            "fecha_aprobacion": aprobacion.fecha_aprobacion if aprobacion else None,
+        })
+
+    todas_completas = all(
+        item["estado_aprobacion"] in ["aprobada", "no_aprobada"]
+        and item["conteo"]["discusion"] == 0
+        and item["conteo"]["faltan"] == 0
+        for item in resumen_postulaciones
+    )
+
     context = {
         'acta': acta,
         'resumen_postulaciones': resumen_postulaciones,
         'postulaciones_disponibles': postulaciones_disponibles,
-
-    }   
+        'todas_completas': todas_completas,
+        'aprobaciones_acta': evaluadores_aprobacion,
+        'total_evaluadores': len(evaluadores_aprobacion),
+        'total_aprobados': sum(1 for e in evaluadores_aprobacion if e["aprobado"]),
+    }
     return render(request, 'convocatorias/detalle_acta.html', context)
 
 @login_required
@@ -525,9 +573,333 @@ def detalle_postulacion(request, postulacion_id):
     return render(request, 'convocatorias/detalle_postulacion.html', context)
 
 
+def notificar_cambio_recomendacion(evaluacion):
+    email = evaluacion.evaluador.usuario.email  # ya confirmado por ti
+    nombre = evaluacion.evaluador.usuario.first_name
+    titulo = evaluacion.postulacion.titulo
+
+    mensaje = (
+        f"Hola {nombre},\n\n"
+        f"La recomendación que diste sobre la postulación '{titulo}' ha sido modificada por un administrador.\n"
+        "Por favor, revisa la evaluación y ajusta tu comentario si lo consideras necesario.\n\n"
+        "Gracias por tu colaboración.\n\n"
+        "Equipo de Convocatorias"
+    )
+
+    send_mail(
+        subject="⚠️ Ajustar comentario por cambio de recomendación",
+        message=mensaje,
+        from_email="automatizacionprocesos@proimagenescolombia.com",
+        recipient_list=[email],
+    )
+
+@csrf_exempt
+@require_POST
+def actualizar_recomendacion(request):
+    evaluacion_id = request.POST.get("evaluacion_id")
+    nueva_recomendacion = request.POST.get("recomendacion")
+
+    try:
+        evaluacion = Evaluacion.objects.get(id=evaluacion_id)
+        evaluacion.recomendacion = nueva_recomendacion
+        evaluacion.save()
+        return JsonResponse({"status": "ok"})
+    except Evaluacion.DoesNotExist:
+        return JsonResponse({"status": "error", "msg": "Evaluación no encontrada"}, status=404)
+
+@csrf_exempt
+@login_required
+@require_POST
+def recordar_evaluacion(request):
+    evaluacion_id = request.POST.get("evaluacion_id")
+    evaluador_id = request.POST.get("evaluador_id")
+    postulacion_id = request.POST.get("postulacion_id")
+
+    try:
+        if evaluacion_id:
+            # Si ya existe una evaluación, usamos esa
+            evaluacion = Evaluacion.objects.get(id=evaluacion_id)
+            email = evaluacion.evaluador.usuario.email
+            nombre = evaluacion.evaluador.usuario.get_full_name()
+            titulo = evaluacion.postulacion.titulo
+        elif evaluador_id and postulacion_id:
+            # Si no hay evaluación aún, buscamos en la tabla de asignaciones
+            asignacion = PostulacionEvaluadores.objects.get(
+                evaluador_id=evaluador_id, postulacion_id=postulacion_id
+            )
+            email = asignacion.evaluador.usuario.email
+            nombre = asignacion.evaluador.usuario.get_full_name()
+            titulo = asignacion.postulacion.titulo
+        else:
+            return JsonResponse({"status": "error", "message": "Datos insuficientes"})
+
+        # Enviar correo
+        send_mail(
+            subject="📩 Recordatorio de Evaluación",
+            message=(
+                f"Hola {nombre},\n\n"
+                f"Aún no has completado tu evaluación para la postulación '{titulo}'.\n"
+                f"Por favor ingresa al sistema para completarla cuanto antes.\n\n"
+                f"Gracias."
+            ),
+            from_email="automatizacionprocesos@proimagenescolombia.com",
+            recipient_list=[email],
+        )
+
+        return JsonResponse({"status": "ok"})
+
+    except (Evaluacion.DoesNotExist, PostulacionEvaluadores.DoesNotExist):
+        return JsonResponse({"status": "error", "message": "Evaluador o asignación no encontrada"})
+
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)})      
+
+@csrf_exempt
+@login_required
+def solicitar_cambio_comentario(request):
+    if request.method == "POST":
+        evaluacion_id = request.POST.get("evaluacion_id")
+        try:
+            evaluacion = Evaluacion.objects.get(id=evaluacion_id)
+            email = evaluacion.evaluador.usuario.email
+            nombre = evaluacion.evaluador.usuario.first_name
+            titulo = evaluacion.postulacion.titulo
+            mensaje = (
+                f"Hola {nombre},\n\n"
+                f"La recomendación que diste sobre la postulación '{titulo}' ha sido modificada por un administrador.\n"
+                "Por favor, revisa la evaluación y ajusta tu comentario si lo consideras necesario.\n\n"
+                "Gracias por tu colaboración.\n\n"
+                "Equipo de Convocatorias"
+            )
+
+            send_mail(
+                subject="⚠️ Ajustar comentario por cambio de recomendación",
+                message=mensaje,
+                from_email="automatizacionprocesos@proimagenescolombia.com",
+                recipient_list=[email],
+            )
+
+            return JsonResponse({"status": "ok"})
+        except Evaluacion.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Evaluación no encontrada"})
+    return JsonResponse({"status": "error", "message": "Método no permitido"})
 
 
+@login_required
+def generar_pdfs_acta(request, acta_id):
+    acta = get_object_or_404(ActaEvaluacion, pk=acta_id)
+    postulaciones = acta.postulaciones.all()
+
+    context = {
+        "acta": acta,
+        "postulaciones": postulaciones,
+        "privado": True  # 👈 se usa en el template para incluir o no nombres
+    }
+
+    # Generar PDF privado
+    pdf_privado = render_to_pdf("pdfs/acta_pdf_privada.html", context)
+    acta.archivo_privado_pdf.save(f"acta_{acta.id}_privada.pdf", ContentFile(pdf_privado))
+
+    # Generar PDF público (sin nombres)
+    context["privado"] = False
+    pdf_publico = render_to_pdf("pdfs/acta_pdf_publica.html", context)
+    acta.archivo_publico_pdf.save(f"acta_{acta.id}_publica.pdf", ContentFile(pdf_publico))
+
+    acta.save()
+    messages.success(request, "✅ PDFs del acta generados correctamente.")
+    return redirect("detalle_acta", acta_id=acta.id)
+
+@login_required
+def aprobar_acta(request, acta_id):
+    user = request.user
+
+    try:
+        evaluador = Evaluador.objects.get(usuario=user)
+    except Evaluador.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "No tienes permisos para aprobar el acta."}, status=403)
+
+    acta = get_object_or_404(ActaEvaluacion, pk=acta_id)
+
+    aprobacion, created = AprobacionActa.objects.get_or_create(
+        acta=acta,
+        evaluador=evaluador
+    )
+
+    if not aprobacion.aprobado:
+        aprobacion.aprobado = True
+        aprobacion.fecha_aprobacion = timezone.now()
+        aprobacion.save()
+
+    return JsonResponse({"status": "ok", "message": "Acta aprobada correctamente."})
+
+@login_required
+def actas_pendientes_evaluador(request):
+    try:
+        evaluador = Evaluador.objects.get(usuario=request.user)
+    except Evaluador.DoesNotExist:
+        messages.error(request, "Tu usuario no está registrado como evaluador.")
+        return redirect("home")  # o donde prefieras redirigir
+
+    # Aprobaciones hechas por este evaluador
+    actas_aprobadas_ids = AprobacionActa.objects.filter(
+        evaluador=evaluador, aprobado=True
+    ).values_list("acta_id", flat=True)
+
+    # Actas en estado en_aprobacion_acta
+    actas = ActaEvaluacion.objects.filter(estado="en_aprobacion_acta")
+
+    context = {
+        "actas": actas,
+        "actas_aprobadas_ids": list(actas_aprobadas_ids),
+    }
+    return render(request, "convocatorias/actas_pendientes.html", context)
+
+@login_required
+@user_passes_test(es_admin)
+def actualizar_estado_acta(request, acta_id):
+    if request.method == "POST":
+        acta = get_object_or_404(ActaEvaluacion, pk=acta_id)
+        nuevo_estado = request.POST.get("nuevo_estado")  
+
+        estados_validos = ["en_evaluaciones", "en_aprobacion_acta", "acta_aprobada", "firmada_jefe_area"]
+        if nuevo_estado in estados_validos:
+            acta.estado = nuevo_estado
+            acta.save()
+            messages.success(request, "✅ Estado del acta actualizado correctamente.")
+        else:
+            messages.error(request, "❌ Estado inválido.")
+
+    return redirect("detalle_acta", acta_id=acta_id)
+
+@login_required
+def aprobar_acta_evaluador(request, acta_id):
+    acta = get_object_or_404(ActaEvaluacion, pk=acta_id)
+
+    # Asegurar que el usuario está registrado como Evaluador
+    try:
+        evaluador = Evaluador.objects.get(usuario=request.user)
+    except Evaluador.DoesNotExist:
+        messages.error(request, "⚠️ Tu usuario no está registrado como evaluador.")
+        return redirect("actas_pendientes_evaluador")
+
+    # Verifica si ya ha aprobado esta acta
+    aprobacion_existente = AprobacionActa.objects.filter(acta=acta, evaluador=evaluador).first()
+    
+    if aprobacion_existente:
+        messages.warning(request, "⚠️ Ya has aprobado esta acta.")
+    else:
+        AprobacionActa.objects.create(
+            acta=acta,
+            evaluador=evaluador,
+            aprobado=True,
+            fecha_aprobacion=timezone.now()
+        )
+        messages.success(request, "✅ Has aprobado el contenido del acta correctamente.")
+
+    return redirect("actas_pendientes_evaluador")
+
+@login_required
+@user_passes_test(es_admin)
+def firmar_acta(request, acta_id):
+    acta = get_object_or_404(ActaEvaluacion, pk=acta_id)
+
+    if acta.estado != 'acta_aprobada':
+        messages.error(request, "❌ El acta debe estar en estado 'Aprobada' para poder firmarla.")
+        return redirect('detalle_acta', acta_id=acta.id)
+
+    postulaciones = Postulacion.objects.filter(acta=acta).prefetch_related('evaluaciones')
+
+    total_postulados = postulaciones.count()
+    total_recomendados = 0
+    total_no_recomendados = 0
+
+    aprobados = []
+    no_aprobados = []
+
+    # 🧩 Anexo 1: Comentarios por cortometraje
+    comentarios_por_corto = {}
 
 
+    for postulacion in postulaciones:
+        evaluaciones = postulacion.evaluaciones.all()
+        si = evaluaciones.filter(recomendacion='si').count()
+        no = evaluaciones.filter(recomendacion='no').count()
+        total = evaluaciones.count()
 
+        if si > no:
+            postulacion.votos_favor = si  # 👉 agregamos este valor para mostrar en la tabla
+            aprobados.append(postulacion)
+        else:
+            postulacion.votos_favor = si  # 👉 agregamos este valor para mostrar en la tabla
+            no_aprobados.append(postulacion)    
+        
+        if total > 0 and si >= ((total // 2) + 1):
+            total_recomendados += 1
+        else:
+            total_no_recomendados += 1
 
+         # Añadir comentarios al diccionario por cortometraje
+        comentarios = []
+        for evaluacion in evaluaciones:
+            if evaluacion.comentario:
+                comentarios.append({
+                    "evaluador": evaluacion.evaluador.usuario.get_full_name(),  # si Evaluador tiene relación a User
+                    "comentario": evaluacion.comentario
+                })
+        if comentarios:
+            comentarios_por_corto[postulacion] = comentarios    
+
+    firma_url = request.build_absolute_uri("/static/images/firma_jefe.png")
+
+    logo_url = request.build_absolute_uri("/static/images/proimagenes_colombia.png")
+
+    # ------------------- PDF PRIVADO -------------------
+    html_privada = render_to_string("pdfs/acta_pdf_privada.html", {
+        "acta": acta,
+        "aprobados": aprobados,
+        "no_aprobados":no_aprobados,
+        "postulaciones": postulaciones,
+        "total_postulados": total_postulados,
+        "total_recomendados": total_recomendados,
+        "total_no_recomendados": total_no_recomendados,
+        "comentarios_por_corto": comentarios_por_corto,
+        "incluir_firma": True,
+        "firma_url": firma_url,
+        "logo_url":logo_url
+    })
+
+    buffer_privada = BytesIO()
+    pisa.CreatePDF(src=html_privada, dest=buffer_privada)
+    pdf_privado = buffer_privada.getvalue()
+    buffer_privada.close()
+
+    acta.archivo_privado_pdf.save(f"acta_{acta.id}_privada_firmada.pdf", ContentFile(pdf_privado))
+
+    # ------------------- PDF PÚBLICO -------------------
+    html_publica = render_to_string("pdfs/acta_pdf_publica.html", {
+        "acta": acta,
+        "aprobados": aprobados,
+        "no_aprobados":no_aprobados,
+        "postulaciones": postulaciones,
+        "total_postulados": total_postulados,
+        "total_recomendados": total_recomendados,
+        "total_no_recomendados": total_no_recomendados,
+        "comentarios_por_corto": comentarios_por_corto,
+        "incluir_firma": True,
+        "firma_url": firma_url,
+        "logo_url":logo_url
+    })
+
+    buffer_publica = BytesIO()
+    pisa.CreatePDF(src=html_publica, dest=buffer_publica)
+    pdf_publico = buffer_publica.getvalue()
+    buffer_publica.close()
+
+    acta.archivo_publico_pdf.save(f"acta_{acta.id}_publica_firmada.pdf", ContentFile(pdf_publico))
+
+    # Cambiar estado del acta
+    acta.estado = "firmada_jefe_area"
+    acta.save()
+
+    messages.success(request, "✒️ El acta ha sido firmada correctamente por el jefe (privada y pública).")
+    return redirect("detalle_acta", acta_id=acta.id)

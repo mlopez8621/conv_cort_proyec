@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:pisa="http://www.xhtml2pdf.com/">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: letter;
+            margin: 100px 96px 96px 96px; /* top, right, bottom, left */
+        }
+
+        body {
+            font-family: "Arial", sans-serif;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            margin-bottom: 0.5em;
+        }
+
+        .seccion {
+            margin-top: 1.5em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .firma {
+            margin-top: 3em;
+            text-align: center;
+        }
+
+        .firma img {
+            width: 180px;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-justify {
+            text-align: justify;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 🔁 Encabezado repetido en cada página -->
+<pisa:page-template name="pagina_con_logo">
+    <pisa:frame x="96" y="96" width="420" height="650"/>
+    <pisa:static-content name="header">
+        <div style="text-align: right;">
+            <img src="{{ logo_url }}" style="height: 30px; margin-bottom: 10px;" />
+        </div>
+    </pisa:static-content>
+</pisa:page-template>
+
+<pisa:story template="pagina_con_logo">
+
+    
+
+    <h3 style="text-align: center; font-weight: bold;">ACTA N° {{ acta.id|add:"076" }}</h3>
+    <h3 style="text-align: center; font-weight: bold;">
+        ACTA GRUPO CURADOR DE CORTOMETRAJES PARA EXHIBICIÓN EN SALAS
+    </h3>
+
+<p style="text-align: justify; margin-top: 20px;">
+    En atención a la citación enviada por el Fondo Mixto de Promoción Cinematográfica
+    “Proimágenes Colombia” mediante correo electrónico el día <strong>16 de enero del {{ acta.anio }}</strong>,
+    se reunieron el <strong>lunes 29 de enero a la 3:00 p.m.</strong>, los miembros designados por el
+    Consejo Nacional de las Artes y la Cultura en Cinematografía, denominado ‘Grupo Curador de Cortometrajes’
+    en cumplimiento de los fines previstos en el artículo 2.10.2.5.1 del Decreto 1080 de 2015.
+</p>
+
+<p style="text-align: justify;">
+    La reunión se realizó de forma no presencial, mediante videoconferencia con comunicación simultánea en la
+    plataforma <em>Google Meet</em>, en la cual participaron los integrantes del grupo curador:
+    <strong>Daniel Bejarano, Diana Montenegro, María Fernanda Morales, Oscar Ruíz, Ana Lucía Flórez,
+    Gustavo Palacio y Lizbeth Torres</strong>. Los miembros Ana Lucía Flórez, Gustavo Palacio y Lizbeth Torres,
+    son miembros del CNACC, de acuerdo con lo establecido en el numeral tercero del artículo 2.10.2.5.1
+    del Decreto 1080 de 2015.
+</p>
+
+<p style="text-align: justify;">
+    El Grupo Curador de Cortometrajes adelantó el proceso de visualización, evaluación y deliberación,
+    encaminado a establecer cuáles de los cortometrajes postulados en el periodo comprendido entre el
+    <strong>15 de diciembre del {{ acta.anio|add:"-1" }}</strong> y el <strong>14 de enero del {{ acta.anio }}</strong>,
+    que no han sido beneficiarios del FDC, se aprueban como candidatos para ser exhibidos en salas de cine
+    a partir del mes de marzo del {{ acta.anio }}. A continuación, se detallan los resultados de este proceso:
+</p>
+
+<ul style="margin-top: 10px; margin-left: 20px;">
+    <li><strong>Número de cortometrajes postulados no beneficiarios del FDC:</strong> {{ total_postulados }}</li>
+    <li><strong>Número de cortometrajes postulados que no cumplieron los requisitos iniciales:</strong> 0</li>
+    <li><strong>Número de cortometrajes recomendados:</strong> {{ total_recomendados  }}</li>
+    <li><strong>Número de cortometrajes no recomendados:</strong> {{ total_no_recomendados }}</li>
+</ul>
+
+<p style="text-align: justify; margin-top: 10px;">
+    Una vez culminado el proceso de visualización, evaluación y deliberación el Grupo Curador de
+    Cortometrajes decidió <strong>aprobar</strong>, por mayoría, los siguientes cortometrajes:
+</p>
+    <div class="seccion">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Título</th>
+                    <th>Productor</th>
+                    <th>Año</th>
+                    <th>Duración</th>
+                    <th>Resolución</th>
+                    <th>Fecha Resolución</th>
+                    <th>Votos a favor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for corto in aprobados %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ corto.titulo }}</td>
+                    <td>{{ corto.nombre_productor }}</td>
+                    <td>{{ corto.anio_produccion }}</td>
+                    <td>{{ corto.duracion|time:"i:s" }}</td>
+                    <td>{{ corto.resolucion_cpn }}</td>
+                    <td>{{ corto.fecha_resolucion_cpn|date:"d/m/Y" }}</td>
+                    <td>{{ corto.votos_favor }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p style="text-align: justify; margin-top: 10px;">
+        Por otro lado, una vez culminado el proceso de visualización, evaluación y deliberación el Grupo Curador de
+        Cortometrajes decidió <strong>no aprobar</strong>, por mayoría, los siguientes cortometrajes:
+    </p>
+    <div class="seccion">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Título</th>
+                    <th>Productor</th>
+                    <th>Año</th>
+                    <th>Duración</th>
+                    <th>Resolución</th>
+                    <th>Fecha Resolución</th>
+                    <th>Votos a favor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for corto in no_aprobados %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ corto.titulo }}</td>
+                    <td>{{ corto.nombre_productor }}</td>
+                    <td>{{ corto.anio_produccion }}</td>
+                    <td>{{ corto.duracion|time:"i:s" }}</td>
+                    <td>{{ corto.resolucion_cpn }}</td>
+                    <td>{{ corto.fecha_resolucion_cpn|date:"d/m/Y" }}</td>
+                    <td>{{ corto.votos_favor }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p style="text-align: justify; margin-top: 10px;">
+        Por otra parte, los cortometrajes postulados que han recibido algún estímulo del FDC no requieren aprobación por parte del grupo curador e ingresan directamente al banco de cortos, según lo señalado en el artículo inicialmente citado, en la medida en que surtan el trámite administrativo y cumplan con todos los requisitos.
+    </p>
+    <p style="text-align: justify; margin-top: 10px;">
+        <strong>En este periodo no se recibieron postulaciones de cortometrajes beneficiarios del FDC</strong>
+    </p>
+    <p style="text-align: justify; margin-top: 10px;"></p>
+        En <strong>Anexo 1</strong> del Acta N° 077 Grupo Curador de Cortometrajes se encuentran los comentarios que realizó el Grupo Curador de Cortometrajes como parte del proceso de deliberación sobre los cortometrajes postulados y en el <strong>Anexo 2</strong> la aceptación del contenido del acta por parte de los miembros del grupo curador.
+    </p>
+    <p style="text-align: justify; margin-top: 10px;">
+        El listado de los cortometrajes que se encuentran disponibles en el banco de cortos para este periodo se puede consultar en el sitio web de Proimágenes Colombia 
+        <a href="https://www.proimagenescolombia.com/secciones/proimagenes/interna.php?nt=31" target="_blank">
+            (enlace)
+        </a>.
+    </p>
+    <!-- Firma del jefe (si ya está firmada) -->
+    {% if incluir_firma %}
+        <div style="margin-top: 60px;">
+            Cordialmente,<br>
+            <img src="{{ firma_url }}" width="200" alt="Firma del jefe"><br>
+            <strong>MANUEL ALEJANDRO PINILLA</strong><br>
+            Director Administrativo y Financiero<br>
+            Proimágenes Colombia - Secretaría Técnica CNACC
+        </div>
+    {% endif %}
+    <div style="page-break-before: always;"></div>
+    <div class="seccion">
+        <h3 style="text-align: center; font-weight: bold; margin-top: 40px;">ANEXO 1 – Comentarios del Grupo Curador</h3>
+    
+        {% for corto, comentarios in comentarios_por_corto.items %}
+            <p class="bold">{{ forloop.counter }}. {{ corto.titulo|upper }}</p>
+            {% for comentario in comentarios %}
+                <p class="text-justify"><strong>{{ comentario.evaluador }}:</strong> “{{ comentario.comentario }}”</p>
+            {% endfor %}
+            <br>
+        {% endfor %}
+    </div>
+</pisa:story>
+</body>
+</html>

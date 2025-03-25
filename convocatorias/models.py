@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User  # Usamos el modelo predeterminado de Django
 from django.core.validators import RegexValidator
 import datetime
+from django.utils import timezone
 
 
 class Evaluador(models.Model):
@@ -113,6 +114,7 @@ class Postulacion(models.Model):
     fecha_postulacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
     comentario_admin = models.TextField(blank=True, null=True)
+    comentario_final = models.TextField(blank=True, null=True, verbose_name="Comentario final del acta")
 
     class Meta:
         verbose_name = "Postulación"
@@ -170,15 +172,47 @@ class PostulacionEvaluadores(models.Model):
         return f"{self.evaluador.usuario.first_name} - {self.postulacion.titulo}"
     
 class ActaEvaluacion(models.Model):
-    mes = models.PositiveIntegerField(choices=[(i, datetime.date(1900, i, 1).strftime('%B')) for i in range(1, 13)])
+    MESES_CHOICES = [(i, datetime.date(1900, i, 1).strftime('%B')) for i in range(1, 13)]
+
+    mes = models.PositiveIntegerField(choices=MESES_CHOICES)
     anio = models.PositiveIntegerField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     creada_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    estado = models.CharField(max_length=50, choices=[
-        ('en_proceso', 'En proceso'),
-        ('acta_aprobada', 'Acta aprobada lista para firmar'),
-        ('firmada_jefe_area', 'Firmada por jefe de área')
-    ], default='en_proceso')
+
+    estado = models.CharField(
+        max_length=50,
+        choices=[
+            ('en_evaluaciones', 'En Evaluaciones'),
+            ('en_aprobacion_acta', 'En aprobación de acta'),
+            ('acta_aprobada', 'Acta aprobada (lista para firmar)'),
+            ('firmada_jefe_area', 'Firmada por jefe de área')
+        ],
+        default='en_evaluaciones'
+    )
+
+    archivo_privado_pdf = models.FileField(upload_to='actas/', null=True, blank=True)
+    archivo_publico_pdf = models.FileField(upload_to='actas/', null=True, blank=True)
 
     def __str__(self):
         return f"Acta {self.mes}/{self.anio}"
+    
+class AprobacionActa(models.Model):
+    acta = models.ForeignKey(ActaEvaluacion, on_delete=models.CASCADE, related_name="aprobaciones")
+    evaluador = models.ForeignKey(Evaluador, on_delete=models.CASCADE)
+    aprobado = models.BooleanField(default=False)
+    fecha_aprobacion = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        unique_together = ('acta', 'evaluador')
+        verbose_name = 'Aprobación de Acta'
+        verbose_name_plural = 'Aprobaciones de Actas'
+
+    def aprobar(self):
+        self.aprobado = True
+        self.fecha_aprobacion = timezone.now()
+        self.save()
+
+    def __str__(self):
+        estado = "✅ Aprobado" if self.aprobado else "⏳ Pendiente"
+        return f"{self.evaluador.usuario.get_full_name()} - Acta {self.acta.id} - {estado}"    
