@@ -907,11 +907,19 @@ def firmar_acta(request, acta_id):
     return redirect("detalle_acta", acta_id=acta.id)
 
 def banco_cortos_publico(request):
-    cortos = BancoCortos.objects.select_related('postulacion').all()
-    return render(request, 'convocatorias/banco_cortos_publico.html', {'cortos': cortos})
+    cortos = BancoCortos.objects.select_related('postulacion', 'postulacion__acta').all()
+    return render(request, 'convocatorias/banco_cortos_publico.html', {
+        'cortos': cortos,
+        'titulo_pagina': 'Banco de Cortometrajes'
+    })
+
 
 def banco_cortos_embed(request):
-    cortometrajes = BancoCortos.objects.all()
+    cortos = BancoCortos.objects.select_related('postulacion', 'postulacion__acta').all()
     return render(request, 'convocatorias/banco_cortos_embed.html', {
-        'cortometrajes': cortometrajes
+        'cortos': cortos,
+        'titulo_pagina': 'Banco de Cortometrajes'
     })
+
+
+

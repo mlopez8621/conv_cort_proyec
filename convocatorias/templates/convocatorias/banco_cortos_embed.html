@@ -25,11 +25,12 @@
                 <th>No.</th>
                 <th>Título</th>
                 <th>Productor</th>
-                <th>Duración</th>
-                <th>Año</th>
+                <th>Duración
+                    (mm:ss)</th>
+                <th>Año Resolución de Producto</th>
                 <th>FDC</th>
                 <th>Clasificación</th>
-                <th>Otras plataformas</th>
+                <th>Estuvo en otras plataforma</th>
                 <th>Mes de aprobación</th>
             </tr>
         </thead>
@@ -37,15 +38,48 @@
             {% for corto in cortos %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td><strong>{{ corto.titulo }}</strong></td>
-                <td>{{ corto.nombre_productor }}</td>
-                <td>{{ corto.duracion|time:"i:s" }}</td>
-                <td>{{ corto.anio_produccion }}</td>
-                <td>{{ corto.fdc }}</td>
-                <td>{{ corto.clasificacion }}</td>
-                <td>{{ corto.otras_plataformas }}</td>
-                <td>{{ corto.mes_aprobacion|date:"F Y" }}</td>
+                <td><strong>{{ corto.postulacion.titulo }}</strong></td>
+                <td>{{ corto.postulacion.nombre_productor }}</td>
+                <td>{{ corto.postulacion.duracion|time:"H:i" }}</td>
+                <td>{{ corto.postulacion.anio_produccion }}</td>
+                
+                <td>
+                    {% if corto.postulacion.beneficiario_fdc == 'si' %}
+                        {{ corto.postulacion.anio_fdc }} - Beneficiario FDC
+                    {% else %}
+                        No aplica
+                    {% endif %}
+                </td>
+            
+                <td>
+                    {% if corto.postulacion.clasificacion %}
+                        {{ corto.postulacion.clasificacion }}
+                    {% else %}
+                        {% if corto.postulacion.genero_cortrometraje == "ficcion" %}
+                            NIÑOS - APTA PARA TODO PÚBLICO
+                        {% else %}
+                            Por definir
+                        {% endif %}
+                    {% endif %}
+                </td>
+            
+                <td>
+                    {% if corto.postulacion.plataformas_exhibicion == "si" %}
+                        {{ corto.postulacion.si_plataforma }}
+                    {% else %}
+                        No se ha emitido
+                    {% endif %}
+                </td>
+            
+                <td>
+                    {% if corto.postulacion.acta %}
+                        {{ corto.postulacion.acta.get_mes_display }} {{ corto.postulacion.acta.anio }}
+                    {% else %}
+                        Sin asignar
+                    {% endif %}
+                </td>
             </tr>
+            
             {% endfor %}
         </tbody>
     </table>
