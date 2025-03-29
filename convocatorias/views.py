@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .models import Postulacion, Evaluador, Evaluacion, PostulacionEvaluadores, ActaEvaluacion,AprobacionActa
+from .models import Postulacion, Evaluador, Evaluacion, PostulacionEvaluadores, ActaEvaluacion,AprobacionActa,BancoCortos
 from .forms import PostulacionForm
 from .forms import EvaluacionForm
 from django.http import HttpResponseRedirect
@@ -22,6 +22,7 @@ from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from io import BytesIO
 from xhtml2pdf import pisa
+
 
 # Establecer el locale para obtener nombres de meses en español
 try:
@@ -829,6 +830,7 @@ def firmar_acta(request, acta_id):
         if si > no:
             postulacion.votos_favor = si  # 👉 agregamos este valor para mostrar en la tabla
             aprobados.append(postulacion)
+            BancoCortos.objects.get_or_create(postulacion=postulacion)
         else:
             postulacion.votos_favor = si  # 👉 agregamos este valor para mostrar en la tabla
             no_aprobados.append(postulacion)    
@@ -901,5 +903,15 @@ def firmar_acta(request, acta_id):
     acta.estado = "firmada_jefe_area"
     acta.save()
 
-    messages.success(request, "✒️ El acta ha sido firmada correctamente por el jefe (privada y pública).")
+    messages.success(request, "✒️ El acta ha sido firmada correctamente y los cortos aprobados fueron enviados al Banco de Cortos.")
     return redirect("detalle_acta", acta_id=acta.id)
+
+def banco_cortos_publico(request):
+    cortos = BancoCortos.objects.select_related('postulacion').all()
+    return render(request, 'convocatorias/banco_cortos_publico.html', {'cortos': cortos})
+
+def banco_cortos_embed(request):
+    cortometrajes = BancoCortos.objects.all()
+    return render(request, 'convocatorias/banco_cortos_embed.html', {
+        'cortometrajes': cortometrajes
+    })

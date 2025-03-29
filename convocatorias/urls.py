@@ -21,7 +21,9 @@ from .views import (
     actas_pendientes_evaluador,
     actualizar_estado_acta,
     aprobar_acta_evaluador,
-    firmar_acta
+    firmar_acta,
+    banco_cortos_publico,
+    banco_cortos_embed
 )
 
 urlpatterns = [
@@ -48,4 +50,6 @@ urlpatterns = [
     path('acta/<int:acta_id>/actualizar-estado/', actualizar_estado_acta, name='actualizar_estado_acta'),
     path('actas/aprobar/<int:acta_id>/', aprobar_acta_evaluador, name='aprobar_acta_evaluador'),
     path('actas/<int:acta_id>/firmar/', firmar_acta, name='firmar_acta'),
+    path('banco-cortos/', banco_cortos_publico, name='banco_cortos'),
+    path('banco-cortos/embed/', banco_cortos_embed, name='banco_cortos_embed'),
 ]

@@ -135,6 +135,11 @@
                                 <i class="bi bi-file-earmark-text"></i> Ver Actas
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link"href="{% url 'banco_cortos' %}">
+                                📽️ Banco de Cortos
+                            </a>
+                        </li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'postulaciones_asignadas' %}">
@@ -144,6 +149,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'actas_pendientes_evaluador' %}">
                                 <i class="bi bi-journal-check"></i> Actas Pendientes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"href="{% url 'banco_cortos' %}">
+                                📽️ Banco de Cortos
                             </a>
                         </li>
                     {% endif %}

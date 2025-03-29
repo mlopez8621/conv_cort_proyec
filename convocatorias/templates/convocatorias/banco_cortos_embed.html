@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Banco de Cortometrajes</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <style>
+        table.dataTable thead {
+            background-color: #0066cc;
+            color: white;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <table id="tabla-cortos" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Título</th>
+                <th>Productor</th>
+                <th>Duración</th>
+                <th>Año</th>
+                <th>FDC</th>
+                <th>Clasificación</th>
+                <th>Otras plataformas</th>
+                <th>Mes de aprobación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for corto in cortos %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><strong>{{ corto.titulo }}</strong></td>
+                <td>{{ corto.nombre_productor }}</td>
+                <td>{{ corto.duracion|time:"i:s" }}</td>
+                <td>{{ corto.anio_produccion }}</td>
+                <td>{{ corto.fdc }}</td>
+                <td>{{ corto.clasificacion }}</td>
+                <td>{{ corto.otras_plataformas }}</td>
+                <td>{{ corto.mes_aprobacion|date:"F Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tabla-cortos').DataTable({
+                paging: false,
+                searching: false,
+                info: false,
+                ordering: false
+            });
+        });
+    </script>
+</body>
+</html>

@@ -216,3 +216,16 @@ class AprobacionActa(models.Model):
     def __str__(self):
         estado = "✅ Aprobado" if self.aprobado else "⏳ Pendiente"
         return f"{self.evaluador.usuario.get_full_name()} - Acta {self.acta.id} - {estado}"    
+    
+class BancoCortos(models.Model):
+    postulacion = models.OneToOneField(Postulacion, on_delete=models.CASCADE, related_name='banco')
+    fecha_agregado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Cortometraje en el Banco"
+        verbose_name_plural = "Banco de Cortos"
+
+    def __str__(self):
+        return self.postulacion.titulo
+
+
