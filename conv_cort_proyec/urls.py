@@ -20,6 +20,7 @@ from django.contrib.auth import views as auth_views
 from convocatorias.views import custom_login
 from django.conf import settings
 from django.conf.urls.static import static
+import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),  
@@ -30,7 +31,7 @@ urlpatterns = [
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]
 
-if settings.DEBUG:
+if settings.DEBUG or os.environ.get("RAILWAY_ENVIRONMENT_NAME"):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

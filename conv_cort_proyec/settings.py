@@ -171,9 +171,16 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Almacena sesiones en l
 SESSION_COOKIE_AGE = 3600  # Sesión dura 1 hora (en segundos)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expira al cerrar el navegador
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 X_FRAME_OPTIONS = 'ALLOWALL'
+
+# Archivos Media (subidas de usuarios y PDFs generados)
+ON_RAILWAY = os.environ.get('RAILWAY_ENVIRONMENT_NAME') is not None
+if ON_RAILWAY:
+    MEDIA_ROOT = '/mnt/data/media'  # Usa el volumen adjunto
+else:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Local
+
+MEDIA_URL = '/media/'
 
 
 
