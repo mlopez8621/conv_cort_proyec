@@ -21,7 +21,7 @@
                         <td>{{ acta.get_mes_display }}</td>
                         <td>{{ acta.anio }}</td>
                         <td>
-                            <a href="{{ acta.archivo_privado_pdf.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <a href="{% url 'descargar_archivo' acta.archivo_privado_pdf.name %}" target="_blank" class="btn btn-outline-primary btn-sm">
                                 🔒 Ver Acta
                             </a>
                         </td>
