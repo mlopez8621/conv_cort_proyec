@@ -22,6 +22,8 @@ from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from io import BytesIO
 from xhtml2pdf import pisa
+import os
+from django.conf import settings
 
 
 # Establecer el locale para obtener nombres de meses en español
@@ -920,6 +922,17 @@ def banco_cortos_embed(request):
         'cortos': cortos,
         'titulo_pagina': 'Banco de Cortometrajes'
     })
+
+def listar_archivos_media(request):
+    media_path = settings.MEDIA_ROOT
+    archivos = []
+
+    for dirpath, dirnames, filenames in os.walk(media_path):
+        for file in filenames:
+            archivos.append(os.path.relpath(os.path.join(dirpath, file), media_path))
+
+    return JsonResponse({'archivos': archivos})
+
 
 
 
