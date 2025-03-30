@@ -327,6 +327,7 @@ def postulaciones_asignadas(request):
 
 @login_required
 @csrf_exempt
+@user_passes_test(es_admin)
 def revisar_evaluaciones(request, postulacion_id):
     postulacion = get_object_or_404(Postulacion, id=postulacion_id)
     evaluaciones = Evaluacion.objects.filter(postulacion=postulacion)
@@ -374,6 +375,7 @@ def revisar_evaluaciones(request, postulacion_id):
 
 @login_required
 @csrf_exempt
+@user_passes_test(es_admin)
 def actualizar_recomendacion(request, evaluacion_id):
     if not request.user.is_staff:
         return JsonResponse({"success": False, "error": "Acceso denegado."}, status=403)
@@ -394,6 +396,7 @@ def actualizar_recomendacion(request, evaluacion_id):
 
 @login_required
 @csrf_exempt
+@user_passes_test(es_admin)
 def notificar_evaluador(request, evaluacion_id):
     if not request.user.is_staff:
         return JsonResponse({"success": False, "error": "Acceso denegado."}, status=403)
@@ -614,6 +617,7 @@ def actualizar_recomendacion(request):
 @csrf_exempt
 @login_required
 @require_POST
+@user_passes_test(es_admin)
 def recordar_evaluacion(request):
     evaluacion_id = request.POST.get("evaluacion_id")
     evaluador_id = request.POST.get("evaluador_id")
@@ -660,6 +664,7 @@ def recordar_evaluacion(request):
 
 @csrf_exempt
 @login_required
+@user_passes_test(es_admin)
 def solicitar_cambio_comentario(request):
     if request.method == "POST":
         evaluacion_id = request.POST.get("evaluacion_id")
@@ -690,6 +695,7 @@ def solicitar_cambio_comentario(request):
 
 
 @login_required
+@user_passes_test(es_admin)
 def generar_pdfs_acta(request, acta_id):
     acta = get_object_or_404(ActaEvaluacion, pk=acta_id)
     postulaciones = acta.postulaciones.all()
@@ -923,16 +929,6 @@ def banco_cortos_embed(request):
         'cortos': cortos,
         'titulo_pagina': 'Banco de Cortometrajes'
     })
-
-def listar_archivos_media(request):
-    media_path = settings.MEDIA_ROOT
-    archivos = []
-
-    for dirpath, dirnames, filenames in os.walk(media_path):
-        for file in filenames:
-            archivos.append(os.path.relpath(os.path.join(dirpath, file), media_path))
-
-    return JsonResponse({'archivos': archivos})
 
 def servir_archivo_media(request, ruta_archivo):
     ruta_completa = os.path.join(settings.MEDIA_ROOT, ruta_archivo)
