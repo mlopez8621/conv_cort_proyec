@@ -24,6 +24,7 @@ from io import BytesIO
 from xhtml2pdf import pisa
 import os
 from django.conf import settings
+from django.http import FileResponse, Http404
 
 
 # Establecer el locale para obtener nombres de meses en español
@@ -932,6 +933,13 @@ def listar_archivos_media(request):
             archivos.append(os.path.relpath(os.path.join(dirpath, file), media_path))
 
     return JsonResponse({'archivos': archivos})
+
+def servir_archivo_media(request, ruta_archivo):
+    ruta_completa = os.path.join(settings.MEDIA_ROOT, ruta_archivo)
+    if os.path.exists(ruta_completa):
+        return FileResponse(open(ruta_completa, 'rb'), content_type='application/pdf')
+    else:
+        raise Http404("Archivo no encontrado.")
 
 
 

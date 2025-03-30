@@ -123,8 +123,8 @@
     {% elif acta.archivo_privado_pdf %}
         <div class="alert alert-success mt-4 text-center">
             ✅ PDFs generados:
-            <a href="{{ acta.archivo_privado_pdf.url }}" class="btn btn-outline-dark btn-sm" target="_blank">🔒 Acta Privada</a>
-            <a href="{{ acta.archivo_publico_pdf.url }}" class="btn btn-outline-primary btn-sm" target="_blank">🌐 Acta Pública</a>
+            <a href="{% url 'descargar_archivo' acta.archivo_privado_pdf.name %}" class="btn btn-outline-dark btn-sm" target="_blank">🔒 Acta Privada</a>
+            <a href="{% url 'descargar_archivo' acta.archivo_publico_pdf.name %}" class="btn btn-outline-primary btn-sm" target="_blank">🌐 Acta Pública</a>
         </div>
     {% endif %}
     <hr>
