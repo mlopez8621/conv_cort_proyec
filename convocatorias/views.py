@@ -915,6 +915,8 @@ def firmar_acta(request, acta_id):
     messages.success(request, "✒️ El acta ha sido firmada correctamente y los cortos aprobados fueron enviados al Banco de Cortos.")
     return redirect("detalle_acta", acta_id=acta.id)
 
+@login_required
+@user_passes_test(es_admin)
 def banco_cortos_publico(request):
     cortos = BancoCortos.objects.select_related('postulacion', 'postulacion__acta').all()
     return render(request, 'convocatorias/banco_cortos_publico.html', {
@@ -930,6 +932,8 @@ def banco_cortos_embed(request):
         'titulo_pagina': 'Banco de Cortometrajes'
     })
 
+@login_required
+@user_passes_test(es_admin)
 def servir_archivo_media(request, ruta_archivo):
     ruta_completa = os.path.join(settings.MEDIA_ROOT, ruta_archivo)
     if os.path.exists(ruta_completa):
@@ -937,6 +941,8 @@ def servir_archivo_media(request, ruta_archivo):
     else:
         raise Http404("Archivo no encontrado.")
 
+@login_required
+@user_passes_test(es_admin)
 def ver_archivos(request):
     media_path = settings.MEDIA_ROOT
     archivos = []
