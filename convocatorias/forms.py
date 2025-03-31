@@ -1,8 +1,28 @@
 from django import forms
 from .models import Postulacion
 from .models import Evaluacion
+from datetime import time
+from datetime import timedelta
 
 class PostulacionForm(forms.ModelForm):
+
+    duracion = forms.CharField(
+        label="Duración (MM:SS)",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ejemplo: 08:30',
+            'required': 'required'
+        })
+    )
+
+    def clean_duracion(self):
+        data = self.cleaned_data['duracion']
+        try:
+            minutos, segundos = map(int, data.split(':'))
+            return timedelta(minutes=minutos, seconds=segundos)
+        except:
+            raise forms.ValidationError("La duración debe estar en formato MM:SS")
+        
     class Meta:
         model = Postulacion
         fields = ['titulo', 'anio_produccion','duracion','genero_cortrometraje','subgenero_cortrometraje',
@@ -17,7 +37,6 @@ class PostulacionForm(forms.ModelForm):
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_titulo','placeholder': 'Ingrese el titulo','required': 'required'}),
             'anio_produccion': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese año de produccion','required': 'required'}),
-            'duracion': forms.TimeInput(attrs={'class': 'form-control', 'id': 'id_duracion','placeholder': 'Ingrese la doracion del corto HH:MM','required': 'required'}, format='%H:%M'),
             'genero_cortrometraje': forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'id_genero_cortrometraje','required': 'required'}),
             'subgenero_cortrometraje': forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'id_subgenero_cortrometraje','required': 'required'}),
             'otro_subgenero_cortrometraje': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_otro_subgenero_cortrometraje','placeholder': 'Ingrese otro subgenero','required': 'required'}),
@@ -50,6 +69,8 @@ class PostulacionForm(forms.ModelForm):
             'acepta_tyc':forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'id_acepta_tyc'}),
         }
 
+    
+        
 class EvaluacionForm(forms.ModelForm):
     class Meta:
         model = Evaluacion

@@ -80,7 +80,7 @@ class Postulacion(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)  # Relación con el usuario que postula
     titulo = models.CharField(max_length=255)
     anio_produccion = models.IntegerField(verbose_name="Año de producción")
-    duracion = models.TimeField(verbose_name="Duración (Min)", help_text="Formato HH:MM")
+    duracion = models.DurationField(verbose_name="Duración (MM:SS)", help_text="Formato MM:SS")
     genero_cortrometraje = models.CharField(max_length=20, choices=GENERO_CORTROMETRAJE_CHOICES,blank=False,null=False,default='ficcion')
     subgenero_cortrometraje = models.CharField(max_length=20, choices=SUBGENERO_CORTROMETRAJE_CHOICES,blank=False,null=False,default='drama')
     otro_subgenero_cortrometraje = models.CharField(max_length=255, null=True, blank=True)
