@@ -159,7 +159,7 @@
             {% if postulacion.certificacion_cumplimiento %}
             <div class="col">
                 <div class="card border-0 shadow-sm p-2 text-center">
-                    <a href="{{ postulacion.certificacion_cumplimiento.url }}" class="btn btn-outline-primary w-100" target="_blank">
+                    <a href="{ %url 'descargar_archivo' postulacion.certificacion_cumplimiento.name % }" class="btn btn-outline-primary w-100" target="_blank">
                         ✅ Certificación de Cumplimiento
                     </a>
                 </div>
