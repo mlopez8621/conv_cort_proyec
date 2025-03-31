@@ -123,7 +123,7 @@
             {% if postulacion.certificacion_fdc %}
             <div class="col">
                 <div class="card border-0 shadow-sm p-2 text-center">
-                    <a href="{{ postulacion.certificacion_fdc.url }}" class="btn btn-outline-primary w-100" target="_blank">
+                    <a href="{% url 'descargar_archivo' postulacion.certificacion_fdc.name %}" class="btn btn-outline-primary w-100" target="_blank">
                         📄 Certificación FDC
                     </a>
                 </div>
@@ -132,7 +132,7 @@
             {% if postulacion.certificacion_cpn %}
             <div class="col">
                 <div class="card border-0 shadow-sm p-2 text-center">
-                    <a href="{{ postulacion.certificacion_cpn.url }}" class="btn btn-outline-primary w-100" target="_blank">
+                    <a href="{% url 'descargar_archivo' postulacion.certificacion_cpn.name %}" class="btn btn-outline-primary w-100" target="_blank">
                         📜 Certificación CPN
                     </a>
                 </div>
@@ -141,7 +141,7 @@
             {% if postulacion.acta_clasificacion %}
             <div class="col">
                 <div class="card border-0 shadow-sm p-2 text-center">
-                    <a href="{{ postulacion.acta_clasificacion.url }}" class="btn btn-outline-primary w-100" target="_blank">
+                    <a href="{% url 'descargar_archivo' postulacion.acta_clasificacion.name %}" class="btn btn-outline-primary w-100" target="_blank">
                         🏛️ Acta de Clasificación
                     </a>
                 </div>
@@ -150,7 +150,7 @@
             {% if postulacion.autorizacion_uso %}
             <div class="col">
                 <div class="card border-0 shadow-sm p-2 text-center">
-                    <a href="{{ postulacion.autorizacion_uso.url }}" class="btn btn-outline-primary w-100" target="_blank">
+                    <a href="{% url 'descargar_archivo' postulacion.autorizacion_uso.name %}" class="btn btn-outline-primary w-100" target="_blank">
                         🔏 Autorización de Uso
                     </a>
                 </div>
