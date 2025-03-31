@@ -24,7 +24,8 @@ from .views import (
     firmar_acta,
     banco_cortos_publico,
     banco_cortos_embed,
-    servir_archivo_media
+    servir_archivo_media,
+    ver_archivos
 )
 
 urlpatterns = [
@@ -54,4 +55,6 @@ urlpatterns = [
     path('banco-cortos/', banco_cortos_publico, name='banco_cortos'),
     path('banco-cortos/embed/', banco_cortos_embed, name='banco_cortos_embed'),
     path('descargar/<path:ruta_archivo>/', servir_archivo_media, name='descargar_archivo'),
+    path('admin/ver-archivos/', ver_archivos, name='ver_archivos'),
+
 ]

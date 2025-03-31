@@ -937,6 +937,18 @@ def servir_archivo_media(request, ruta_archivo):
     else:
         raise Http404("Archivo no encontrado.")
 
+def ver_archivos(request):
+    media_path = settings.MEDIA_ROOT
+    archivos = []
+
+    for dirpath, dirnames, filenames in os.walk(media_path):
+        for file in filenames:
+            # Ruta relativa desde MEDIA_ROOT
+            relative_path = os.path.relpath(os.path.join(dirpath, file), media_path)
+            archivos.append(relative_path.replace("\\", "/"))  # compatibilidad con Windows
+
+    return JsonResponse({'archivos': archivos})
+
 
 
 
