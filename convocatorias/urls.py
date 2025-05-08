@@ -25,8 +25,13 @@ from .views import (
     banco_cortos_publico,
     banco_cortos_embed,
     servir_archivo_media,
-    ver_archivos
+    ver_archivos,
+    login_programacion_web,
+    LoginProgramacionView,
+    registro_usuario,
 )
+
+from django.contrib.auth import views as auth_views  # 📌 Para recuperación de contraseña
 
 urlpatterns = [
     path('postulacion/', postulacion_publica, name='postulacion_publica'),
@@ -57,4 +62,14 @@ urlpatterns = [
     path('descargar/<path:ruta_archivo>/', servir_archivo_media, name='descargar_archivo'),
     path('admin/ver-archivos/', ver_archivos, name='ver_archivos'),
 
+     # 🧩 Login API y web
+    path('api/login-programacion/', LoginProgramacionView.as_view(), name='login_programacion_api'),
+    path('login-programacion-web/', login_programacion_web, name='login_programacion_web'),
+
+    # 🧩 Recuperación de contraseña
+    path('password_reset/', auth_views.PasswordResetView.as_view(template_name="programaciones/password_reset_form.html"), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name="programaciones/password_reset_done.html"), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name="programaciones/password_reset_confirm.html"), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name="programaciones/password_reset_complete.html"), name='password_reset_complete'),
+    path('registro/', registro_usuario, name='registro_usuario'),
 ]

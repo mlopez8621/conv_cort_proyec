@@ -3,6 +3,9 @@ from .models import Postulacion
 from .models import Evaluacion
 from datetime import time
 from datetime import timedelta
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+import re
 
 class PostulacionForm(forms.ModelForm):
 
@@ -90,3 +93,37 @@ class EvaluacionForm(forms.ModelForm):
             raise forms.ValidationError("El comentario debe tener al menos 50 caracteres.")
         return comentario
 
+class RegistroUsuarioForm(UserCreationForm):
+    username = forms.CharField(
+        label="NIT (Usuario)",
+        max_length=11,
+        min_length=9,
+        help_text="Ingrese su NIT o cédula (9 a 11 dígitos numéricos).",
+        widget=forms.TextInput(attrs={"placeholder": "Ej: 1031123075", "class": "form-control"})
+    )
+    email = forms.EmailField(
+        label="Correo electrónico",
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "Ej: micorreo@dominio.com"})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["password1"].widget.attrs.update({"class": "form-control"})
+        self.fields["password2"].widget.attrs.update({"class": "form-control"})
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        if not re.match(r"^\d{9,11}$", username):
+            raise forms.ValidationError("El NIT debe tener entre 9 y 11 dígitos numéricos.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Ya existe un usuario con este correo.")
+        return email
+
+    class Meta:
+        model = User
+        fields = ("username", "email", "password1", "password2")

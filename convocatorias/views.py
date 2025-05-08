@@ -25,6 +25,10 @@ from xhtml2pdf import pisa
 import os
 from django.conf import settings
 from django.http import FileResponse, Http404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib.auth.forms import UserCreationForm
+from .forms import RegistroUsuarioForm  # usa tu nuevo formulario
 
 
 # Establecer el locale para obtener nombres de meses en español
@@ -954,6 +958,43 @@ def ver_archivos(request):
             archivos.append(relative_path.replace("\\", "/"))  # compatibilidad con Windows
 
     return JsonResponse({'archivos': archivos})
+
+class LoginProgramacionView(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        user = authenticate(username=username, password=password)
+        if user:
+            return Response({"status": "success", "user_id": user.id})
+        return Response({"status": "fail"}, status=401)
+
+def login_programacion_web(request):
+    mensaje = None  # Variable para mensaje de éxito
+
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            mensaje = "✅ Tu usuario ya está creado. Puedes usar la macro de programación."
+        else:
+            messages.error(request, "❌ Credenciales inválidas. Verifica tu usuario o contraseña.")
+
+    return render(request, "programaciones/login_programacion.html", {"mensaje": mensaje})
+
+def registro_usuario(request):
+    if request.method == "POST":
+        form = RegistroUsuarioForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Usuario creado correctamente. Ya puedes iniciar sesión.")
+            return redirect("login_programacion_web")
+    else:
+        form = RegistroUsuarioForm()
+    return render(request, "programaciones/registro_usuario.html", {"form": form})
 
 
 
