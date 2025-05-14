@@ -114,7 +114,7 @@ class RegistroUsuarioForm(UserCreationForm):
 
     def clean_username(self):
         username = self.cleaned_data["username"]
-        if not re.match(r"^\d{9,11}$", username):
+        if not re.match(r"^\d{8,11}$", username):
             raise forms.ValidationError("El NIT debe tener entre 9 y 11 dígitos numéricos.")
         return username
 
