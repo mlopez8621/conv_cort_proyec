@@ -97,8 +97,8 @@ class RegistroUsuarioForm(UserCreationForm):
     username = forms.CharField(
         label="NIT (Usuario)",
         max_length=11,
-        min_length=9,
-        help_text="Ingrese su NIT o cédula (9 a 11 dígitos numéricos).",
+        min_length=8,
+        help_text="Ingrese su NIT o cédula (8 a 11 dígitos numéricos).",
         widget=forms.TextInput(attrs={"placeholder": "Ej: 1031123075", "class": "form-control"})
     )
     email = forms.EmailField(
@@ -115,7 +115,7 @@ class RegistroUsuarioForm(UserCreationForm):
     def clean_username(self):
         username = self.cleaned_data["username"]
         if not re.match(r"^\d{8,11}$", username):
-            raise forms.ValidationError("El NIT debe tener entre 9 y 11 dígitos numéricos.")
+            raise forms.ValidationError("El NIT debe tener entre 8 y 11 dígitos numéricos.")
         return username
 
     def clean_email(self):
